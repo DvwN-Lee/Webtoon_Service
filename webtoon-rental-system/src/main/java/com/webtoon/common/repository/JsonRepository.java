@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+
+import com.webtoon.common.util.UserTypeAdapter;
+import com.webtoon.domain.User;
 /**
  * JSON 파일 기반 Repository 추상 클래스
  * 모든 Repository가 이 클래스를 상속받아 CRUD 기능을 사용
@@ -28,6 +31,7 @@ public abstract class JsonRepository<T> {
     private static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
             .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+            .registerTypeAdapter(User.class, new UserTypeAdapter())
             .create();
 
     // 동시성 제어를 위한 ReadWriteLock
