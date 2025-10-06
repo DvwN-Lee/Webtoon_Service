@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.webtoon.service.AuthServiceTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-10-06T04:45:46.084Z" hostname="idongjuui-MacBookPro.local" time="0.026">
+  <properties/>
+  <testcase name="FR-ACCOUNT-01: 독자 회원가입 성공" classname="com.webtoon.service.AuthServiceTest" time="0.026"/>
+  <system-out><![CDATA[✅ 독자 회원가입 성공: 독자A (초기 포인트: 1000P)
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
