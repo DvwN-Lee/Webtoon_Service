@@ -1,0 +1,28 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+out/
+
+# Eclipse
+.classpath
+.project
+.settings/
+bin/
+
+# VS Code
+.vscode/
+
+# MacOS
+.DS_Store
+
+# JSON 데이터 파일 (선택적 - 샘플 데이터는 커밋할 수도 있음)
+# src/main/resources/data/*.json
+
+# 로그 파일
+*.log

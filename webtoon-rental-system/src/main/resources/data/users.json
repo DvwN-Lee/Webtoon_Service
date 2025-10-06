@@ -1,0 +1,10 @@
+[
+  {
+    "nickname": "독자A",
+    "id": 1,
+    "username": "reader123",
+    "password": "pass1234",
+    "points": 1000,
+    "createdAt": "2025-10-06T18:37:33.619083"
+  }
+]
