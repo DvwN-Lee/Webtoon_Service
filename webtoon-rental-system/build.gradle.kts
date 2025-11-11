@@ -77,7 +77,6 @@ tasks.register<JavaExec>("runApp") {
     description = "Run the application"
     classpath = sourceSets.main.get().runtimeClasspath
     mainClass = application.mainClass
-    standardInput = System.`in`
 }
 
 // 리소스 디렉토리 생성
