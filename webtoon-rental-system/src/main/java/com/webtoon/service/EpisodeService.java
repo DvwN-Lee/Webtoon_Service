@@ -19,39 +19,39 @@ public class EpisodeService {
     }
 
     /** 회차 단건 조회 */
-    public Episode findById(String episodeId) {
+    public Episode findById(Long episodeId) {
         return episodeRepository.findById(episodeId)
                 .orElseThrow(() -> new IllegalArgumentException("회차를 찾을 수 없습니다: " + episodeId));
     }
 
     /** 특정 작품의 모든 회차(번호 오름차순) */
-    public List<Episode> findByWebtoonId(String webtoonId) {
+    public List<Episode> findByWebtoonId(Long webtoonId) {
         return episodeRepository.findByWebtoonId(webtoonId);
     }
 
     /** 제목 수정 */
-    public void updateTitle(String episodeId, String newTitle) {
+    public void updateTitle(Long episodeId, String newTitle) {
         Episode ep = findById(episodeId);
         ep.updateTitle(newTitle);
         episodeRepository.save(ep);
     }
 
     /** 본문 수정 */
-    public void updateContent(String episodeId, String newContent) {
+    public void updateContent(Long episodeId, String newContent) {
         Episode ep = findById(episodeId);
         ep.updateContent(newContent);
         episodeRepository.save(ep);
     }
 
     /** 가격 수정 (Episode 내부에서 유효성 검사 수행) */
-    public void updatePrices(String episodeId, int rentPrice, int buyPrice) {
+    public void updatePrices(Long episodeId, int rentPrice, int buyPrice) {
         Episode ep = findById(episodeId);
         ep.updatePrices(rentPrice, buyPrice); // 내부에서 음수/대여>구매 조건 검증
         episodeRepository.save(ep);
     }
 
     /** 회차 삭제 */
-    public void delete(String episodeId) {
+    public void delete(Long episodeId) {
         episodeRepository.deleteById(episodeId);
     }
 }

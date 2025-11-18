@@ -1,11 +1,16 @@
 package com.webtoon.service;
 
 import com.webtoon.domain.PaymentHistory;
-import com.webtoon.domain.Reader;
 import com.webtoon.pattern.CreditCardPaymentStrategy;
 import com.webtoon.pattern.BankTransferPaymentStrategy;
 import com.webtoon.pattern.PaymentStrategy;
 import com.webtoon.repository.PaymentHistoryRepository;
+import com.webtoon.domain.Reader;
+import com.webtoon.service.PointService;
+import com.webtoon.common.repository.InMemoryPaymentHistoryRepository;
+
+import java.time.Clock;
+import java.time.ZoneId;
 
 import org.junit.jupiter.api.*;
 
@@ -18,12 +23,23 @@ class PointServiceTest {
     private PaymentHistoryRepository paymentRepo;
     private PointService pointService;
     private Reader reader;
+    private Clock baseClock;
 
     @BeforeEach
     void setUp() {
-        paymentRepo = new PaymentHistoryRepository(); // JSON 파일을 쓰는 실제 구현체여도 무방
-        pointService = new PointService(paymentRepo);
-        reader = new Reader(1L, "reader1", "1234", "닉", 0);
+        paymentRepo = new InMemoryPaymentHistoryRepository();
+
+        // PointService는 repo + clock 두 개 필요
+        baseClock = Clock.systemDefaultZone();
+        pointService = new PointService(paymentRepo, baseClock);
+
+        // Reader 실제 생성자에 맞춰 생성
+        reader = new Reader("reader1", "1234", "닉");
+
+        reader.setId(1L);   // 이거 반드시 넣어라
+
+        // 기본 포인트가 1000이므로 → 0P에서 테스트를 하고 싶다면 아래처럼 조정
+        reader.addPoints(-1000);   // now: 0P
     }
 
     @Test
@@ -34,13 +50,15 @@ class PointServiceTest {
         boolean ok = pointService.chargePoints(reader, 10_000, card);
 
         assertTrue(ok);
-        assertEquals(1_000, reader.getPoints());
+        assertEquals(1_000, reader.getPoints()); // 0P → +1000P
 
         List<PaymentHistory> logs = pointService.getPaymentHistory(reader.getId());
         assertFalse(logs.isEmpty());
-        assertEquals(10_000, logs.get(logs.size()-1).getAmount());
-        assertEquals(1_000, logs.get(logs.size()-1).getPoints());
-        assertEquals("신용카드", logs.get(logs.size()-1).getPaymentMethod());
+
+        PaymentHistory last = logs.get(logs.size() - 1);
+        assertEquals(10_000, last.getAmount());
+        assertEquals(1_000, last.getPoints());
+        assertEquals("신용카드", last.getPaymentMethod());
     }
 
     @Test
@@ -61,6 +79,7 @@ class PointServiceTest {
 
         boolean ok = pointService.chargePoints(reader, 3333, card);
 
-        assertFalse(ok, "정해진 금액 이외 입력은 거부되어야 함(10원=1P 환산 정책/유효 금액 제약).");
+        assertFalse(ok, "정해진 금액 이외 입력은 거부되어야 함");
+        assertEquals(0, reader.getPoints(), "포인트 변화 없어야 함");
     }
 }

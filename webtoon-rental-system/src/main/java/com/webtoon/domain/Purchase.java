@@ -33,6 +33,10 @@ public class Purchase {
     public int getPricePaid() { return pricePaid; }
     public LocalDateTime getPurchasedAt() { return purchasedAt; }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     // 동등성: 영구 소장 특성상 (reader, episode) 조합을 유일로 본다
     @Override public boolean equals(Object o) {
         if (!(o instanceof Purchase)) return false;
@@ -46,7 +50,7 @@ public class Purchase {
         return "Purchase{" +
                 "id=" + id +
                 ", readerId=" + readerId +
-                ", webtoonId=" + webtoonId +
+                ", episodeId=" + episodeId +
                 ", purchasedAt=" + purchasedAt +
                 '}';
     }

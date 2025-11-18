@@ -42,7 +42,7 @@ public class WebtoonService {
     /**
      * 작품 팔로우
      */
-    public void followWebtoon(String webtoonId, String userId) {
+    public void followWebtoon(Long webtoonId, String userId) {
         Webtoon webtoon = webtoonRepository.findById(webtoonId)
                 .orElseThrow(() -> new IllegalArgumentException("웹툰을 찾을 수 없습니다: " + webtoonId));
         webtoon.attach(userId);
@@ -55,7 +55,7 @@ public class WebtoonService {
      * - Episode id는 UUID 생성
      * - 저장 후 알림 발송
      */
-    public Episode publishEpisode(String webtoonId, String title, String content,
+    public Episode publishEpisode(Long webtoonId, String title, String content,
                                   Integer rentPrice, Integer buyPrice) {
         Webtoon webtoon = webtoonRepository.findById(webtoonId)
                 .orElseThrow(() -> new IllegalArgumentException("웹툰을 찾을 수 없습니다: " + webtoonId));
@@ -65,7 +65,7 @@ public class WebtoonService {
                 .orElse(1);
 
         Episode episode = new Episode(
-                UUID.randomUUID().toString(),
+                UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE,
                 webtoonId,
                 nextNumber,
                 title,

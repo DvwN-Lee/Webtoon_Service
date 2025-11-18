@@ -48,6 +48,10 @@ public class PaymentHistory {
     public String getPaymentMethod() { return paymentMethod; }
     public LocalDateTime getCreatedAt() { return createdAt; }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     // equals/hashCode: id가 있으면 id 기준, 없으면 주요 필드로
     @Override public boolean equals(Object o) {
         if (this == o) return true;

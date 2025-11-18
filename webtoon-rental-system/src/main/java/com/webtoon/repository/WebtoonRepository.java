@@ -11,7 +11,7 @@ public interface WebtoonRepository {
 
     Webtoon save(Webtoon webtoon);
 
-    Optional<Webtoon> findById(String webtoonId);
+    Optional<Webtoon> findById(Long webtoonId);
 
     /**
      * 특정 작가가 가진 모든 웹툰
@@ -23,5 +23,5 @@ public interface WebtoonRepository {
      */
     List<Webtoon> findAll();
 
-    void deleteById(String webtoonId);
+    void deleteById(Long webtoonId);
 }

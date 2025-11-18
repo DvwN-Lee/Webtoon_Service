@@ -78,6 +78,10 @@ public class Rental {
     public LocalDateTime getExpiresAt() { return expiresAt; }
     public Status getStatus(Clock clock) { refreshExpiry(clock); return status; }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     // 동등성: 하나의 대여는 (reader, episode, rentedAt)로 유니크하다고 가정
     @Override public boolean equals(Object o) {
         if (!(o instanceof Rental)) return false;

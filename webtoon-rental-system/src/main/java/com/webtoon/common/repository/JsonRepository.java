@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.webtoon.common.util.LocalDateTimeAdapter;
+import com.webtoon.domain.User;
+
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -18,7 +20,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
 import com.webtoon.common.util.UserTypeAdapter;
-import com.webtoon.domain.User;
+
 /**
  * JSON 파일 기반 Repository 추상 클래스
  * 모든 Repository가 이 클래스를 상속받아 CRUD 기능을 사용

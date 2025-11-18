@@ -18,7 +18,7 @@ public class Webtoon implements Subject {
     private String summary;            // 한 줄 소개 (상세 화면용)
 
     // 관계/통계(최소)
-    private List<String> episodeIds = new ArrayList<>(); // 회차 id 목록 (번호순은 Service에서 정렬)
+    private List<Long> episodeIds = new ArrayList<>(); // 회차 id 목록 (번호순은 Service에서 정렬)
     private final Set<String> followerUserIds = new HashSet<>(); // 팔로워
     private int popularity = 0;        // 정렬용(임시): 조회/대여/구매 합산 등
 
@@ -40,7 +40,7 @@ public class Webtoon implements Subject {
     }
 
     // ====== 도메인 메서드 ======
-    public void addEpisode(String episodeId) {
+    public void addEpisode(Long episodeId) {
         this.episodeIds.add(episodeId);
         touch();
     }
@@ -83,8 +83,8 @@ public class Webtoon implements Subject {
     public String getSummary() { return summary; }
     public void setSummary(String summary) { this.summary = summary; touch(); }
 
-    public List<String> getEpisodeIds() { return episodeIds; }
-    public void setEpisodeIds(List<String> episodeIds) { this.episodeIds = episodeIds; touch(); }
+    public List<Long> getEpisodeIds() { return episodeIds; }
+    public void setEpisodeIds(List<Long> episodeIds) { this.episodeIds = episodeIds; touch(); }
 
     public int getPopularity() { return popularity; }
     public void setPopularity(int popularity) { this.popularity = popularity; }

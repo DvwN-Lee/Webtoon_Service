@@ -12,11 +12,11 @@ public interface EpisodeRepository {
 
     Episode save(Episode episode);
 
-    Optional<Episode> findById(String episodeId);
+    Optional<Episode> findById(Long episodeId);
 
-    List<Episode> findByWebtoonId(String webtoonId);
+    List<Episode> findByWebtoonId(Long webtoonId);
 
-    Optional<Episode> findLatestByWebtoonId(String webtoonId);
+    Optional<Episode> findLatestByWebtoonId(Long webtoonId);
 
-    void deleteById(String episodeId);
+    void deleteById(Long episodeId);
 }
