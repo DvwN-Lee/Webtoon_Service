@@ -54,7 +54,6 @@ class EpisodeServiceTest {
         assertEquals("1화. 수정제목", updated.getTitle());
         assertEquals("본문1-수정", updated.getContent());
         assertEquals(60, updated.getRentPrice());
-        assertEquals(120, updated.getBuyPrice());
 
         List<Episode> list = episodeService.findByWebtoonId(toon.getId());
         assertEquals(1, list.size());

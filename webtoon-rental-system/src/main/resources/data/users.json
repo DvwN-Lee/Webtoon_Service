@@ -76,5 +76,25 @@
     "password": "pass1234",
     "points": 0,
     "createdAt": "2025-11-11T17:18:11.5543535"
+  },
+  {
+    "authorName": "작가4147",
+    "bio": "소개",
+    "followerUserIds": [],
+    "id": 9,
+    "username": "authorY_4147",
+    "password": "pass1234",
+    "points": 0,
+    "createdAt": "2025-11-12T15:13:05.9527972"
+  },
+  {
+    "authorName": "작가5600",
+    "bio": "소개",
+    "followerUserIds": [],
+    "id": 10,
+    "username": "authorX_5600",
+    "password": "pass1234",
+    "points": 0,
+    "createdAt": "2025-11-12T15:13:06.423256"
   }
 ]
