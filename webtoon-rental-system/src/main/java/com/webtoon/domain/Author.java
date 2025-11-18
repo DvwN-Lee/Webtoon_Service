@@ -1,5 +1,9 @@
 package com.webtoon.domain;
 
+import com.webtoon.pattern.Subject;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * 작가 도메인 모델
  *
@@ -9,10 +13,13 @@ package com.webtoon.domain;
  * - getTotalFollowers(): 총 팔로워 수 (모든 작품 합계)
  * - getWebtoonCount(): 작품 수
  */
-public class Author extends User {
+public class Author extends User implements Subject{
 
     private String authorName;  // 작가명
     private String bio;         // 자기소개 (선택)
+
+    // 팔로워(독자) ID 집합
+    private final Set<String> followerUserIds = new HashSet<>();
 
     // 기본 생성자 (Gson용)
     public Author() {
@@ -42,6 +49,34 @@ public class Author extends User {
     public String getUserType() {
         return "AUTHOR";
     }
+
+
+    @Override
+    public String getSubjectId() {
+        return String.valueOf(getId());               // User의 고유 ID 사용
+    }
+
+    @Override
+    public String getSubjectName() {
+        return authorName;            // 알림 표시용 이름
+    }
+
+    @Override
+    public void attach(String userId) {
+        followerUserIds.add(userId);
+    }
+
+    @Override
+    public void detach(String userId) {
+        followerUserIds.remove(userId);
+    }
+
+    @Override
+    public Set<String> getFollowerUserIds() {
+        return followerUserIds;
+    }
+
+
 
     /**
      * 작가명 수정
