@@ -1,35 +1,30 @@
 package com.webtoon.domain;
 
+import com.webtoon.pattern.Observer;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 독자 도메인 모델
- *
- * TODO: 홍승현 - 다음 필드 및 메서드 추가 필요
- * - List<Webtoon> followingWebtoons: 팔로우 중인 작품
- * - List<Notification> notifications: 받은 알림
- * - followWebtoon(Webtoon): 작품 팔로우
- * - unfollowWebtoon(Webtoon): 팔로우 취소
- * - getUnreadNotificationCount(): 미확인 알림 개수
- * - Observer 인터페이스 구현
+ * 팔로우 / 알림 기능 포함
  */
-public class Reader extends User {
+public class Reader extends User implements Observer {
 
-    private String nickname;  // 닉네임
+    private String nickname;
+    private List<Long> followingWebtoonIds;  // 팔로우 중인 웹툰 ID 목록
+    private List<Notification> notifications; // 받은 알림 목록
 
-    // 기본 생성자 (Gson용)
     public Reader() {
         super();
+        this.followingWebtoonIds = new ArrayList<>();
+        this.notifications = new ArrayList<>();
     }
 
-    /**
-     * 독자 생성자
-     *
-     * @param username 로그인 ID
-     * @param password 비밀번호
-     * @param nickname 닉네임
-     */
     public Reader(String username, String password, String nickname) {
-        super(username, password, 1000);  // 초기 포인트 1000P
+        super(username, password, 1000);
         this.nickname = nickname;
+        this.followingWebtoonIds = new ArrayList<>();
+        this.notifications = new ArrayList<>();
     }
 
     @Override
@@ -42,24 +37,50 @@ public class Reader extends User {
         return "READER";
     }
 
-    /**
-     * 닉네임 수정
-     *
-     * @param nickname 새 닉네임
-     */
+    /** 닉네임 수정 */
     public void updateNickname(String nickname) {
         this.nickname = nickname;
     }
 
-    // Getter/Setter
-
-    public String getNickname() {
-        return nickname;
+    /** 팔로우 추가 */
+    public void followWebtoon(Long webtoonId) {
+        if (!followingWebtoonIds.contains(webtoonId)) {
+            followingWebtoonIds.add(webtoonId);
+        }
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    /** 팔로우 취소 */
+    public void unfollowWebtoon(Long webtoonId) {
+        followingWebtoonIds.remove(webtoonId);
     }
+
+    /** 알림 추가 */
+    public void receiveNotification(String message) {
+        this.notifications.add(new Notification(null, this.getId(), message));
+    }
+
+    /** 안 읽은 알림 개수 반환 */
+    public int getUnreadNotificationCount() {
+        return (int) notifications.stream().filter(n -> !n.isRead()).count();
+    }
+
+    // Observer 패턴 구현
+    @Override
+    public void update(String message) {
+        receiveNotification(message);
+        System.out.println("📢 [" + nickname + "] 새 알림: " + message);
+    }
+
+    @Override
+    public Long getUserId() {
+        return this.getId();
+    }
+
+    // Getter / Setter
+    public String getNickname() { return nickname; }
+    public void setNickname(String nickname) { this.nickname = nickname; }
+    public List<Long> getFollowingWebtoonIds() { return followingWebtoonIds; }
+    public List<Notification> getNotifications() { return notifications; }
 
     @Override
     public String toString() {
@@ -68,6 +89,8 @@ public class Reader extends User {
                 ", username='" + getUsername() + '\'' +
                 ", nickname='" + nickname + '\'' +
                 ", points=" + getPoints() +
+                ", following=" + followingWebtoonIds.size() +
+                ", notifications=" + notifications.size() +
                 ", createdAt=" + getCreatedAt() +
                 '}';
     }

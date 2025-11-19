@@ -1,10 +1,9 @@
 package com.webtoon.common.util;
 
 import com.google.gson.*;
+import com.webtoon.domain.User;
 import com.webtoon.domain.Author;
 import com.webtoon.domain.Reader;
-import com.webtoon.domain.User;
-
 import java.lang.reflect.Type;
 
 /**
