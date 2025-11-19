@@ -1,6 +1,7 @@
 package com.webtoon.domain;
 
-import com.webtoon.pattern.Subject;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,13 +14,16 @@ import java.util.Set;
  * - getTotalFollowers(): 총 팔로워 수 (모든 작품 합계)
  * - getWebtoonCount(): 작품 수
  */
-public class Author extends User implements Subject{
+public class Author extends User {
 
     private String authorName;  // 작가명
     private String bio;         // 자기소개 (선택)
 
     // 팔로워(독자) ID 집합
-    private final Set<String> followerUserIds = new HashSet<>();
+//    private final Set<String> followerUserIds = new HashSet<>();
+
+    // 연재 중인 웹툰 목록^^
+    private final List<Webtoon> webtoons = new ArrayList<>();
 
     // 기본 생성자 (Gson용)
     public Author() {
@@ -51,29 +55,57 @@ public class Author extends User implements Subject{
     }
 
 
-    @Override
-    public String getSubjectId() {
-        return String.valueOf(getId());               // User의 고유 ID 사용
+    // 작가는 팔로우 대상 X
+//    @Override
+//    public String getSubjectId() {
+//        return String.valueOf(getId());               // User의 고유 ID 사용
+//    }
+//
+//    @Override
+//    public String getSubjectName() {
+//        return authorName;            // 알림 표시용 이름
+//    }
+//
+//    @Override
+//    public void attach(String userId) {
+//        followerUserIds.add(userId);
+//    }
+//
+//    @Override
+//    public void detach(String userId) {
+//        followerUserIds.remove(userId);
+//    }
+//
+//    @Override
+//    public Set<String> getFollowerUserIds() {
+//        return followerUserIds;
+//    }
+
+    // 작가의 연재 목록에 새 웹툰 등록^^
+    public void createWebtoon(Webtoon webtoon) {
+        if (webtoon == null) return;
+        webtoons.add(webtoon);
     }
 
-    @Override
-    public String getSubjectName() {
-        return authorName;            // 알림 표시용 이름
+    // 작가가 가진 전체 작품 수^^
+    public int getWebtoonCount() {
+        return webtoons.size();
     }
 
-    @Override
-    public void attach(String userId) {
-        followerUserIds.add(userId);
+    // 작가의 모든 작품을 대상으로 총 팔로워 수를 계산^^
+    public int getTotalFollowers() {
+        Set<String> allFollowerIds = new HashSet<>();
+        for (Webtoon webtoon : webtoons) {
+            if (webtoon != null) {
+                allFollowerIds.addAll(webtoon.getFollowerUserIds());
+            }
+        }
+        return allFollowerIds.size();
     }
 
-    @Override
-    public void detach(String userId) {
-        followerUserIds.remove(userId);
-    }
-
-    @Override
-    public Set<String> getFollowerUserIds() {
-        return followerUserIds;
+    // 작가 연재 목록에서 특정 웹툰 제거 (웹툰 삭제 시 사용)
+    public void removeWebtoon(String webtoonId) {
+        webtoons.removeIf(w -> w != null && webtoonId.equals(w.getId()));
     }
 
 
@@ -114,6 +146,10 @@ public class Author extends User implements Subject{
         this.bio = bio;
     }
 
+    public List<Webtoon> getWebtoons() {
+        return webtoons;
+    }
+
     @Override
     public String toString() {
         return "Author{" +
@@ -121,6 +157,8 @@ public class Author extends User implements Subject{
                 ", username='" + getUsername() + '\'' +
                 ", authorName='" + authorName + '\'' +
                 ", bio='" + bio + '\'' +
+                ", webtoonCount=" + webtoons.size() +
+                ", totalFollowers=" + getTotalFollowers() +
                 ", points=" + getPoints() +
                 ", createdAt=" + getCreatedAt() +
                 '}';

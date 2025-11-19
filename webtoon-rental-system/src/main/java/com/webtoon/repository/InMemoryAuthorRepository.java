@@ -15,8 +15,9 @@ public class InMemoryAuthorRepository implements AuthorRepository {
 
     @Override
     public Author save(Author author) {
-        // Author#getSubjectId() 는 String 타입(ID)이어야 함
-        store.put(author.getSubjectId(), author);
+        // Author의 User.id를 문자열로 변환해 키로 사용
+        String authorId = String.valueOf(author.getId());
+        store.put(authorId, author);
         return author;
     }
 
