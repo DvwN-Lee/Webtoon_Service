@@ -1,12 +1,15 @@
 package com.webtoon.service;
 
-import com.webtoon.repository.InMemoryStatisticsRepository;
-import com.webtoon.repository.StatisticsRepository;
+import com.webtoon.domain.*;
+import com.webtoon.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.Arrays;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class StatisticsServiceTest {
 
@@ -118,5 +121,141 @@ class StatisticsServiceTest {
 
         assertEquals(1,  statisticsService.getEpisodeCount(webtoonB));
         assertEquals(2L, statisticsService.getTotalViews(webtoonB));
+    }
+
+    @Test
+    @DisplayName("작가 단위 통계 조회 - 여러 웹툰의 통계 합산")
+    void getAuthorStats_aggregatesMultipleWebtoons() {
+        // given: WebtoonRepository를 포함한 StatisticsService 생성
+        StatisticsRepository statsRepo = new InMemoryStatisticsRepository();
+        WebtoonRepository webtoonRepo = new InMemoryWebtoonRepository();
+        StatisticsService service = new StatisticsService(statsRepo, webtoonRepo);
+
+        // 작가 생성
+        Author author = new Author("author123", "pass1234", "테스트작가", "소개");
+        author.setId(1L);
+        String authorId = String.valueOf(author.getId());
+
+        // 작가의 웹툰 3개 생성
+        Webtoon w1 = new Webtoon("1", "웹툰A", authorId, Arrays.asList("판타지"), "ONGOING", "요약A");
+        Webtoon w2 = new Webtoon("2", "웹툰B", authorId, Arrays.asList("로맨스"), "ONGOING", "요약B");
+        Webtoon w3 = new Webtoon("3", "웹툰C", authorId, Arrays.asList("액션"), "COMPLETED", "요약C");
+
+        webtoonRepo.save(w1);
+        webtoonRepo.save(w2);
+        webtoonRepo.save(w3);
+
+        // Author 도메인에도 웹툰 추가
+        author.createWebtoon(w1);
+        author.createWebtoon(w2);
+        author.createWebtoon(w3);
+
+        // 각 웹툰별로 통계 생성
+        // 웹툰A: 회차 2개, 조회수 10
+        service.onEpisodeCreated(1L);
+        service.onEpisodeCreated(1L);
+        for (int i = 0; i < 10; i++) service.onViewIncreased(1L);
+
+        // 웹툰B: 회차 3개, 조회수 20
+        service.onEpisodeCreated(2L);
+        service.onEpisodeCreated(2L);
+        service.onEpisodeCreated(2L);
+        for (int i = 0; i < 20; i++) service.onViewIncreased(2L);
+
+        // 웹툰C: 회차 1개, 조회수 5
+        service.onEpisodeCreated(3L);
+        for (int i = 0; i < 5; i++) service.onViewIncreased(3L);
+
+        // when
+        AuthorStats stats = service.getAuthorStats(author);
+
+        // then
+        assertNotNull(stats);
+        assertEquals(authorId, stats.getAuthorId());
+        assertEquals("테스트작가", stats.getAuthorName());
+        assertEquals(3, stats.getWebtoonCount(), "작가의 웹툰 수는 3개");
+        assertEquals(6, stats.getTotalEpisodeCount(), "총 회차 수는 2+3+1=6");
+        assertEquals(35L, stats.getTotalViews(), "총 조회수는 10+20+5=35");
+    }
+
+    @Test
+    @DisplayName("작가 단위 통계 조회 - 웹툰이 없는 작가")
+    void getAuthorStats_noWebtoons() {
+        // given
+        StatisticsRepository statsRepo = new InMemoryStatisticsRepository();
+        WebtoonRepository webtoonRepo = new InMemoryWebtoonRepository();
+        StatisticsService service = new StatisticsService(statsRepo, webtoonRepo);
+
+        Author author = new Author("newauthor", "pass1234", "신인작가", "소개");
+        author.setId(100L);
+
+        // when
+        AuthorStats stats = service.getAuthorStats(author);
+
+        // then
+        assertNotNull(stats);
+        assertEquals(0, stats.getWebtoonCount());
+        assertEquals(0, stats.getTotalEpisodeCount());
+        assertEquals(0L, stats.getTotalViews());
+    }
+
+    @Test
+    @DisplayName("작가 통계 조회 시 null Author는 예외 발생")
+    void getAuthorStats_nullAuthor() {
+        // given
+        StatisticsRepository statsRepo = new InMemoryStatisticsRepository();
+        WebtoonRepository webtoonRepo = new InMemoryWebtoonRepository();
+        StatisticsService service = new StatisticsService(statsRepo, webtoonRepo);
+
+        // when & then
+        assertThrows(IllegalArgumentException.class, () -> {
+            service.getAuthorStats(null);
+        });
+    }
+
+    @Test
+    @DisplayName("회차 단위 통계 조회 - Episode 객체에서 조회수 반환")
+    void getEpisodeStats_returnsViewCount() {
+        // given
+        Episode episode = new Episode(
+                UUID.randomUUID().toString(),
+                "webtoon-1",
+                5,
+                "5화. 테스트",
+                "내용",
+                50,
+                100
+        );
+
+        // 조회수 증가
+        episode.incrementViewCount();
+        episode.incrementViewCount();
+        episode.incrementViewCount();
+
+        StatisticsRepository statsRepo = new InMemoryStatisticsRepository();
+        StatisticsService service = new StatisticsService(statsRepo);
+
+        // when
+        EpisodeStats stats = service.getEpisodeStats(episode);
+
+        // then
+        assertNotNull(stats);
+        assertEquals(episode.getId(), stats.getEpisodeId());
+        assertEquals(episode.getWebtoonId(), stats.getWebtoonId());
+        assertEquals(5, stats.getEpisodeNumber());
+        assertEquals(3, stats.getViewCount());
+    }
+
+    @Test
+    @DisplayName("회차 통계 조회 시 null Episode는 예외 발생")
+    void getEpisodeStats_nullEpisode() {
+        // given
+        StatisticsRepository statsRepo = new InMemoryStatisticsRepository();
+        StatisticsService service = new StatisticsService(statsRepo);
+
+        // when & then
+        assertThrows(IllegalArgumentException.class, () -> {
+            service.getEpisodeStats(null);
+        });
     }
 }

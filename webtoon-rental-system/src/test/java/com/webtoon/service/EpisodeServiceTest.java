@@ -89,4 +89,53 @@ class EpisodeServiceTest {
         assertTrue(episodeRepository.findById("ep1").isEmpty());
         assertTrue(episodeService.findByWebtoonId(webtoonId).isEmpty());
     }
+
+    @Test
+    @DisplayName("사용자별 회차 상세 조회 시 조회수가 증가한다")
+    void getEpisodeDetailForUser_incrementsViewCount() {
+        // given
+        String webtoonId = "toon-1";
+        Episode ep = newEpisode("ep1", webtoonId, 1,
+                "1화. 테스트", "내용", 50, 100);
+        episodeRepository.save(ep);
+
+        // 초기 조회수 확인
+        assertEquals(0, ep.getViewCount());
+
+        // when: 사용자가 회차 상세를 조회 (Reader 객체는 null로 전달 - 현재는 사용하지 않음)
+        Episode result1 = episodeService.getEpisodeDetailForUser(ep, null);
+        assertEquals(1, result1.getViewCount());
+
+        // 다시 조회하면 조회수가 계속 증가
+        Episode result2 = episodeService.getEpisodeDetailForUser(ep, null);
+        assertEquals(2, result2.getViewCount());
+
+        // then: 저장소에서 조회해도 조회수가 반영됨
+        Episode stored = episodeService.findById("ep1");
+        assertEquals(2, stored.getViewCount());
+    }
+
+    @Test
+    @DisplayName("Episode 엔티티 기반 삭제")
+    void deleteEpisode_withEntity() {
+        // given
+        String webtoonId = "toon-1";
+        Episode ep = newEpisode("ep1", webtoonId, 1,
+                "1화", "내용", 50, 100);
+        episodeRepository.save(ep);
+        assertNotNull(episodeRepository.findById("ep1").orElse(null));
+
+        // when
+        episodeService.deleteEpisode(ep);
+
+        // then
+        assertTrue(episodeRepository.findById("ep1").isEmpty());
+    }
+
+    @Test
+    @DisplayName("null Episode 엔티티로 삭제 시도 시 오류 없이 처리")
+    void deleteEpisode_withNullEntity() {
+        // when & then: 예외가 발생하지 않아야 함
+        assertDoesNotThrow(() -> episodeService.deleteEpisode(null));
+    }
 }

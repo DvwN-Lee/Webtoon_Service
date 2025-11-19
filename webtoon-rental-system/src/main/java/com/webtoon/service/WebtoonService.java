@@ -220,8 +220,7 @@ public class WebtoonService {
         webtoon.addEpisode(episode.getId());
         webtoonRepository.save(webtoon);
 
-        // ✅ NotificationService를 직접 호출하지 않음 (Observer 패턴 도메인 쪽으로 이동)
-         notificationService.notifyNewEpisode(webtoon, episode);
+        // ✅ NotificationService를 직접 호출하지 않음 (Observer 패턴이 도메인 쪽에서 처리)
         return episode;
     }
 }
