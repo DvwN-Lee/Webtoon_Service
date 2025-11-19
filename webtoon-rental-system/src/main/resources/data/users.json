@@ -8,19 +8,9 @@
     "createdAt": "2025-10-06T18:37:33.619083"
   },
   {
-    "authorName": "유연주",
-    "bio": "소개글",
-    "followerUserIds": [],
-    "id": 2,
-    "username": "author1234",
-    "password": "pass1234",
-    "points": 0,
-    "createdAt": "2025-10-09T18:08:04.0227439"
-  },
-  {
     "authorName": "검증작가",
     "bio": "소개",
-    "followerUserIds": [],
+    "webtoons": [],
     "id": 3,
     "username": "authorY",
     "password": "pass1234",
@@ -30,7 +20,7 @@
   {
     "authorName": "테스터작가",
     "bio": "소개",
-    "followerUserIds": [],
+    "webtoons": [],
     "id": 4,
     "username": "authorX",
     "password": "pass1234",
@@ -40,7 +30,7 @@
   {
     "authorName": "작가8579",
     "bio": "소개",
-    "followerUserIds": [],
+    "webtoons": [],
     "id": 5,
     "username": "authorY_8579",
     "password": "pass1234",
@@ -50,7 +40,7 @@
   {
     "authorName": "작가7643",
     "bio": "소개",
-    "followerUserIds": [],
+    "webtoons": [],
     "id": 6,
     "username": "authorX_7643",
     "password": "pass1234",
@@ -60,7 +50,7 @@
   {
     "authorName": "작가9160",
     "bio": "소개",
-    "followerUserIds": [],
+    "webtoons": [],
     "id": 7,
     "username": "authorY_9160",
     "password": "pass1234",
@@ -70,7 +60,7 @@
   {
     "authorName": "작가0592",
     "bio": "소개",
-    "followerUserIds": [],
+    "webtoons": [],
     "id": 8,
     "username": "authorX_0592",
     "password": "pass1234",
@@ -80,7 +70,7 @@
   {
     "authorName": "작가4147",
     "bio": "소개",
-    "followerUserIds": [],
+    "webtoons": [],
     "id": 9,
     "username": "authorY_4147",
     "password": "pass1234",
@@ -90,11 +80,21 @@
   {
     "authorName": "작가5600",
     "bio": "소개",
-    "followerUserIds": [],
+    "webtoons": [],
     "id": 10,
     "username": "authorX_5600",
     "password": "pass1234",
     "points": 0,
     "createdAt": "2025-11-12T15:13:06.423256"
+  },
+  {
+    "authorName": "peanut",
+    "bio": "소개글",
+    "webtoons": [],
+    "id": 11,
+    "username": "author5678",
+    "password": "pass1234",
+    "points": 0,
+    "createdAt": "2025-11-19T12:11:47.6070406"
   }
 ]
