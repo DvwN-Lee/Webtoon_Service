@@ -2,21 +2,19 @@ package com.webtoon.repository;
 
 import com.webtoon.common.repository.JsonRepository;
 import com.webtoon.domain.Notification;
-import com.webtoon.domain.Reader;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * Notification Repository
- * [수정 사항 - Issue #4 피드백 반영]
- * - Reader 객체를 인자로 받는 편의 메서드(Overloading) 추가
+ * 알림 JSON 파일 관리 및 조회 기능
  */
 public class NotificationRepository extends JsonRepository<Notification> {
 
     @Override
     protected String getFileName() {
-        return "notifications";
+        return "notifications"; // 실제 저장 파일: notifications.json
     }
 
     @Override
@@ -34,35 +32,19 @@ public class NotificationRepository extends JsonRepository<Notification> {
         entity.setId(id);
     }
 
-    // === 기존 ID 기반 메서드 (내부 로직용) ===
+    // === 추가 기능 ===
 
+    /** 특정 독자(readerId)의 알림만 조회 */
     public List<Notification> findByReaderId(Long readerId) {
         return findAll().stream()
                 .filter(n -> n.getReaderId().equals(readerId))
                 .collect(Collectors.toList());
     }
 
+    /** 특정 독자의 미확인 알림만 조회 */
     public List<Notification> findUnreadByReaderId(Long readerId) {
         return findAll().stream()
                 .filter(n -> n.getReaderId().equals(readerId) && !n.isRead())
                 .collect(Collectors.toList());
-    }
-
-    // === [추가] 객체 기반 편의 메서드 (팀장님 요구사항 반영) ===
-
-    /**
-     * Reader 객체를 받아 알림 목록 조회
-     */
-    public List<Notification> findByReader(Reader reader) {
-        if (reader == null || reader.getId() == null) return List.of();
-        return findByReaderId(reader.getId());
-    }
-
-    /**
-     * Reader 객체를 받아 미확인 알림 목록 조회
-     */
-    public List<Notification> findUnreadByReader(Reader reader) {
-        if (reader == null || reader.getId() == null) return List.of();
-        return findUnreadByReaderId(reader.getId());
     }
 }
