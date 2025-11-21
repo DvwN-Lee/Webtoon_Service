@@ -3,7 +3,7 @@ package com.webtoon.domain;
 /**
  * 작가 단위 통계 DTO
  *
- * - 특정 Author에 대한 통계 정보를 담기 위한 값 객체
+ * 특정 Author에 대한 통계 정보를 담기 위한 값 객체
  */
 public class AuthorStats {
 

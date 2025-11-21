@@ -86,9 +86,6 @@ public class AuthService {
         // 3. Author 생성
         Author author = new Author(username, password, authorName, bio);
 
-        // 작가 생성 시 초기 웹툰 등록, 알림 구독 등이 필요하다면 여기서 훅 호출 가능
-//        System.out.printf("📢 작가 Subject 생성됨: %s (id=%s)%n", author.getSubjectName(), author.getSubjectId());
-
         // 4. 저장
         userRepository.save(author);
 

@@ -1,0 +1,12 @@
+[
+  {
+    "nickname": "독자A",
+    "followingWebtoonIds": [],
+    "notifications": [],
+    "id": 1,
+    "username": "reader1",
+    "password": "pass1234",
+    "points": 1000,
+    "createdAt": "2025-11-21T14:09:15.823737"
+  }
+]

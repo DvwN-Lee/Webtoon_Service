@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "readerId": 3,
+    "webtoonId": 300,
+    "message": "첫 번째 알림",
+    "createdAt": "2025-11-21T14:09:15.847855",
+    "isRead": false
+  },
+  {
+    "id": 2,
+    "readerId": 3,
+    "webtoonId": 300,
+    "message": "두 번째 알림",
+    "createdAt": "2025-11-21T14:09:15.848223",
+    "isRead": false
+  }
+]

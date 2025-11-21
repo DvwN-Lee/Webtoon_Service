@@ -1,8 +1,9 @@
 package com.webtoon.domain;
+
 /**
  * 회차 단위 통계 DTO
  *
- * - 단일 Episode에 대한 통계 정보를 담기 위한 값 객체
+ * 단일 Episode에 대한 통계 정보를 담기 위한 값 객체
  */
 public class EpisodeStats {
 

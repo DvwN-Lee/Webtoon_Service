@@ -19,10 +19,7 @@ public class Author extends User {
     private String authorName;  // 작가명
     private String bio;         // 자기소개 (선택)
 
-    // 팔로워(독자) ID 집합
-//    private final Set<String> followerUserIds = new HashSet<>();
-
-    // 연재 중인 웹툰 목록^^
+    // 연재 중인 웹툰 목록
     private final List<Webtoon> webtoons = new ArrayList<>();
 
     // 기본 생성자 (Gson용)
@@ -54,45 +51,18 @@ public class Author extends User {
         return "AUTHOR";
     }
 
-
-    // 작가는 팔로우 대상 X
-//    @Override
-//    public String getSubjectId() {
-//        return String.valueOf(getId());               // User의 고유 ID 사용
-//    }
-//
-//    @Override
-//    public String getSubjectName() {
-//        return authorName;            // 알림 표시용 이름
-//    }
-//
-//    @Override
-//    public void attach(String userId) {
-//        followerUserIds.add(userId);
-//    }
-//
-//    @Override
-//    public void detach(String userId) {
-//        followerUserIds.remove(userId);
-//    }
-//
-//    @Override
-//    public Set<String> getFollowerUserIds() {
-//        return followerUserIds;
-//    }
-
-    // 작가의 연재 목록에 새 웹툰 등록^^
+    // 작가의 연재 목록에 새 웹툰 등록
     public void createWebtoon(Webtoon webtoon) {
         if (webtoon == null) return;
         webtoons.add(webtoon);
     }
 
-    // 작가가 가진 전체 작품 수^^
+    // 작가가 가진 전체 작품 수
     public int getWebtoonCount() {
         return webtoons.size();
     }
 
-    // 작가의 모든 작품을 대상으로 총 팔로워 수를 계산^^
+    // 작가의 모든 작품을 대상으로 총 팔로워 수를 계산
     public int getTotalFollowers() {
         Set<Long> allFollowerIds = new HashSet<>();
         for (Webtoon webtoon : webtoons) {
@@ -107,8 +77,6 @@ public class Author extends User {
     public void removeWebtoon(Long webtoonId) {
         webtoons.removeIf(w -> w != null && webtoonId.equals(w.getId()));
     }
-
-
 
     /**
      * 작가명 수정
