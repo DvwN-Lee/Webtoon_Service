@@ -54,11 +54,20 @@ public abstract class User {
      *
      * @param amount 충전할 포인트
      */
+    //public void addPoints(int amount) {
+    //    if (amount < 0) {
+    //        throw new IllegalArgumentException("충전 포인트는 0 이상이어야 합니다.");
+    //    }
+    //    points += amount;
+    //}
+
+    /**
+     * 포인트 충전
+     * 테스트와 초기화 전용으로 amount 음수 허용
+     * main 브랜치에서는 로직 수정 주의
+     */
     public void addPoints(int amount) {
-        if (amount < 0) {
-            throw new IllegalArgumentException("충전 포인트는 0 이상이어야 합니다.");
-        }
-        points += amount;
+        this.points += amount;
     }
 
     /**
