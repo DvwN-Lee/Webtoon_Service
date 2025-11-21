@@ -25,7 +25,7 @@ public class NotificationService {
     }
 
     /** 신규 알림 생성 */
-    public void createNotification(Long readerId, String message) {
+    public void createNotification(Long readerId, Long webtoonId, String message) {
         List<Notification> all = notificationRepository.findAll();
         Long nextId = all.stream()
                 .map(Notification::getId)
@@ -33,13 +33,20 @@ public class NotificationService {
                 .max(Long::compareTo)
                 .orElse(0L) + 1;
 
-        Notification newNotification = new Notification(nextId, readerId, message);
+        Notification newNotification = new Notification(nextId, readerId, webtoonId, message);
         notificationRepository.save(newNotification);
     }
 
     /** 독자별 전체 알림 조회 (최신순 정렬) */
     public List<Notification> getNotifications(Long readerId) {
         return notificationRepository.findByReaderId(readerId).stream()
+                .sorted(Comparator.comparing(Notification::getCreatedAt).reversed())
+                .collect(Collectors.toList());
+    }
+
+    /** 독자별 미확인 알림만 조회 (최신순 정렬) */
+    public List<Notification> getUnreadNotifications(Long readerId) {
+        return notificationRepository.findUnreadByReaderId(readerId).stream()
                 .sorted(Comparator.comparing(Notification::getCreatedAt).reversed())
                 .collect(Collectors.toList());
     }

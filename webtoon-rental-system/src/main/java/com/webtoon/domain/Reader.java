@@ -55,8 +55,8 @@ public class Reader extends User implements Observer {
     }
 
     /** 알림 추가 */
-    public void receiveNotification(String message) {
-        this.notifications.add(new Notification(null, this.getId(), message));
+    public void receiveNotification(Long webtoonId, String message) {
+        this.notifications.add(new Notification(null, this.getId(), webtoonId, message));
     }
 
     /** 안 읽은 알림 개수 반환 */
@@ -64,11 +64,17 @@ public class Reader extends User implements Observer {
         return (int) notifications.stream().filter(n -> !n.isRead()).count();
     }
 
+    /** 팔로우 여부 확인 */
+    public boolean isFollowing(Long webtoonId) {
+        if (webtoonId == null) return false;
+        return followingWebtoonIds.contains(webtoonId);
+    }
+
     // Observer 패턴 구현
     @Override
-    public void update(String message) {
-        receiveNotification(message);
-        System.out.println("📢 [" + nickname + "] 새 알림: " + message);
+    public void update(Long webtoonId, String webtoonTitle, String message) {
+        receiveNotification(webtoonId, message);
+        System.out.println("[" + nickname + "] 새 알림: " + message);
     }
 
     @Override

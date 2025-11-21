@@ -39,15 +39,17 @@ class NotificationServiceTest {
     void createNotificationTest() {
         // Given
         Long readerId = 1L;
+        Long webtoonId = 100L;
 
         // When
-        notificationService.createNotification(readerId, "새 웹툰이 업로드되었습니다!");
+        notificationService.createNotification(readerId, webtoonId, "새 웹툰이 업로드되었습니다!");
 
         // Then
         List<Notification> all = notificationRepository.findAll();
         assertEquals(1, all.size());
         assertEquals("새 웹툰이 업로드되었습니다!", all.get(0).getMessage());
         assertEquals(readerId, all.get(0).getReaderId());
+        assertEquals(webtoonId, all.get(0).getWebtoonId());
         assertFalse(all.get(0).isRead());
     }
 
@@ -56,7 +58,8 @@ class NotificationServiceTest {
     void markAsReadTest() {
         // Given
         Long readerId = 2L;
-        notificationService.createNotification(readerId, "읽기 테스트 알림");
+        Long webtoonId = 200L;
+        notificationService.createNotification(readerId, webtoonId, "읽기 테스트 알림");
 
         Notification n = notificationRepository.findAll().get(0);
         assertFalse(n.isRead());
@@ -74,8 +77,9 @@ class NotificationServiceTest {
     void getNotificationsSortedTest() {
         // Given
         Long readerId = 3L;
-        notificationService.createNotification(readerId, "첫 번째 알림");
-        notificationService.createNotification(readerId, "두 번째 알림");
+        Long webtoonId = 300L;
+        notificationService.createNotification(readerId, webtoonId, "첫 번째 알림");
+        notificationService.createNotification(readerId, webtoonId, "두 번째 알림");
 
         // When
         List<Notification> sortedList = notificationService.getNotifications(readerId);
@@ -90,8 +94,9 @@ class NotificationServiceTest {
     void markAllAsReadTest() {
         // Given
         Long readerId = 4L;
-        notificationService.createNotification(readerId, "1번 알림");
-        notificationService.createNotification(readerId, "2번 알림");
+        Long webtoonId = 400L;
+        notificationService.createNotification(readerId, webtoonId, "1번 알림");
+        notificationService.createNotification(readerId, webtoonId, "2번 알림");
 
         List<Notification> before = notificationRepository.findUnreadByReaderId(readerId);
         assertEquals(2, before.size());

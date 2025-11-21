@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 public class Notification {
     private Long id;
     private Long readerId;       // 수신자 ID
+    private Long webtoonId;      // 웹툰 ID
     private String message;      // 알림 내용
     private LocalDateTime createdAt;
     private boolean isRead;
@@ -16,9 +17,10 @@ public class Notification {
     // Gson 역직렬화용 기본 생성자
     public Notification() {}
 
-    public Notification(Long id, Long readerId, String message) {
+    public Notification(Long id, Long readerId, Long webtoonId, String message) {
         this.id = id;
         this.readerId = readerId;
+        this.webtoonId = webtoonId;
         this.message = message;
         this.createdAt = LocalDateTime.now();
         this.isRead = false;
@@ -35,6 +37,9 @@ public class Notification {
 
     public Long getReaderId() { return readerId; }
     public void setReaderId(Long readerId) { this.readerId = readerId; }
+
+    public Long getWebtoonId() { return webtoonId; }
+    public void setWebtoonId(Long webtoonId) { this.webtoonId = webtoonId; }
 
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }
