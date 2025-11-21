@@ -89,8 +89,11 @@
 package com.webtoon.service;
 
 import com.webtoon.domain.Episode;
+import com.webtoon.domain.Reader;
+import com.webtoon.domain.User;
 import com.webtoon.domain.Webtoon;
 import com.webtoon.repository.EpisodeRepository;
+import com.webtoon.repository.UserRepository;
 import com.webtoon.repository.WebtoonRepository;
 
 import java.util.Comparator;
@@ -108,7 +111,8 @@ public class WebtoonService {
 
     private final WebtoonRepository webtoonRepository;
     private final EpisodeRepository episodeRepository;
-    private final NotificationService notificationService; // 현재는 사용 X(과제 스펙에 따라 유지)
+    private final NotificationService notificationService;
+    private final UserRepository userRepository;
 
     public WebtoonService(WebtoonRepository webtoonRepository,
                           EpisodeRepository episodeRepository,
@@ -116,6 +120,18 @@ public class WebtoonService {
         this.webtoonRepository = webtoonRepository;
         this.episodeRepository = episodeRepository;
         this.notificationService = notificationService;
+        this.userRepository = new UserRepository();
+    }
+
+    // 테스트용 DI 생성자
+    public WebtoonService(WebtoonRepository webtoonRepository,
+                          EpisodeRepository episodeRepository,
+                          NotificationService notificationService,
+                          UserRepository userRepository) {
+        this.webtoonRepository = webtoonRepository;
+        this.episodeRepository = episodeRepository;
+        this.notificationService = notificationService;
+        this.userRepository = userRepository;
     }
 
     // ====== 조회/검색/정렬 기능 ======
@@ -178,11 +194,22 @@ public class WebtoonService {
 
     /**
      * 작품 팔로우
+     * - 팔로워 목록에 userId 추가
+     * - Reader 객체를 Webtoon의 Observer로 등록 (알림 받기 위해)
      */
     public void followWebtoon(Long webtoonId, Long userId) {
         Webtoon webtoon = webtoonRepository.findById(webtoonId)
                 .orElseThrow(() -> new IllegalArgumentException("웹툰을 찾을 수 없습니다: " + webtoonId));
+
+        // 팔로워 목록에 추가
         webtoon.attach(userId);
+
+        // Reader 객체를 Observer로 등록
+        User user = userRepository.findById(userId);
+        if (user instanceof Reader) {
+            webtoon.registerObserver((Reader) user);
+        }
+
         webtoonRepository.save(webtoon); // 변경 반영
     }
 
@@ -190,7 +217,7 @@ public class WebtoonService {
      * 회차 발행:
      * - 다음 회차 번호 = 기존 최신 number + 1 (없으면 1)
      * - Episode id는 repository에서 자동 생성
-     * - 저장 후 Webtoon.addEpisode() 내부에서 notifyObservers() 호출
+     * - 저장 후 팔로워들에게 알림 전송
      */
     public Episode publishEpisode(Long webtoonId, String title, String content,
                                   Integer rentPrice, Integer buyPrice) {
@@ -213,11 +240,34 @@ public class WebtoonService {
 
         episodeRepository.save(episode);
 
-        // 웹툰에 회차 id 연결 (+ 내부에서 notifyObservers 호출)
+        // 웹툰에 회차 id 연결
         webtoon.addEpisode(episode.getId());
         webtoonRepository.save(webtoon);
 
-        // ✅ NotificationService를 직접 호출하지 않음 (Observer 패턴이 도메인 쪽에서 처리)
+        // 팔로워들에게 알림 전송 (Observer 패턴 구현)
+        notifyFollowers(webtoon, episode);
+
         return episode;
+    }
+
+    /**
+     * 팔로워들에게 알림 전송
+     * - 팔로워 ID 목록에서 Reader 객체를 조회
+     * - 각 Reader의 update() 메서드 호출 (Observer 패턴)
+     * - NotificationService를 통해 알림 생성 및 저장
+     */
+    private void notifyFollowers(Webtoon webtoon, Episode episode) {
+        String message = String.format("'%s'에 새 회차가 추가되었습니다.", webtoon.getTitle());
+
+        for (Long followerId : webtoon.getFollowerUserIds()) {
+            User user = userRepository.findById(followerId);
+            if (user instanceof Reader) {
+                Reader reader = (Reader) user;
+                // Observer 패턴: Reader.update() 호출 (콘솔 출력)
+                reader.update(webtoon.getId(), webtoon.getTitle(), message);
+                // NotificationRepository에도 저장
+                notificationService.createNotification(followerId, webtoon.getId(), message);
+            }
+        }
     }
 }

@@ -47,7 +47,7 @@ public class Webtoon implements Subject {
     public void addEpisode(Long episodeId) {
         this.episodeIds.add(episodeId);
         touch();
-        notifyObservers();
+        // notifyObservers()는 Service 레이어에서 호출 (UserRepository 필요)
     }
 
     public int getEpisodeCount() {
