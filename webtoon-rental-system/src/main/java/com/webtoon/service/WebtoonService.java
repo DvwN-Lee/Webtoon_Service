@@ -5,7 +5,6 @@ import com.webtoon.domain.Webtoon;
 import com.webtoon.repository.EpisodeRepository;
 import com.webtoon.repository.WebtoonRepository;
 
-import java.util.UUID;
 
 /**
  * 웹툰 관련 유스케이스:
@@ -28,11 +27,10 @@ public class WebtoonService {
     }
 
     /**
-     * 새 웹툰 생성 (id는 UUID로 생성)
+     * 새 웹툰 생성 (id는 repository에서 자동 생성)
      */
-    public Webtoon createWebtoon(String title, String authorId) {
+    public Webtoon createWebtoon(String title, Long authorId) {
         Webtoon webtoon = new Webtoon();
-        webtoon.setId(UUID.randomUUID().toString());
         webtoon.setTitle(title);
         webtoon.setAuthorId(authorId);
         // status/genres/summary 등은 필요 시 외부에서 세팅
@@ -42,7 +40,7 @@ public class WebtoonService {
     /**
      * 작품 팔로우
      */
-    public void followWebtoon(Long webtoonId, String userId) {
+    public void followWebtoon(Long webtoonId, Long userId) {
         Webtoon webtoon = webtoonRepository.findById(webtoonId)
                 .orElseThrow(() -> new IllegalArgumentException("웹툰을 찾을 수 없습니다: " + webtoonId));
         webtoon.attach(userId);
@@ -52,7 +50,7 @@ public class WebtoonService {
     /**
      * 회차 발행:
      * - 다음 회차 번호 = 기존 최신 number + 1 (없으면 1)
-     * - Episode id는 UUID 생성
+     * - Episode id는 repository에서 자동 생성
      * - 저장 후 알림 발송
      */
     public Episode publishEpisode(Long webtoonId, String title, String content,
@@ -65,7 +63,7 @@ public class WebtoonService {
                 .orElse(1);
 
         Episode episode = new Episode(
-                UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE,
+                null,
                 webtoonId,
                 nextNumber,
                 title,

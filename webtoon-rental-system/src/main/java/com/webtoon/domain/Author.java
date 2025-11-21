@@ -19,7 +19,7 @@ public class Author extends User implements Subject{
     private String bio;         // 자기소개 (선택)
 
     // 팔로워(독자) ID 집합
-    private final Set<String> followerUserIds = new HashSet<>();
+    private final Set<Long> followerUserIds = new HashSet<>();
 
     // 기본 생성자 (Gson용)
     public Author() {
@@ -62,17 +62,17 @@ public class Author extends User implements Subject{
     }
 
     @Override
-    public void attach(String userId) {
+    public void attach(Long userId) {
         followerUserIds.add(userId);
     }
 
     @Override
-    public void detach(String userId) {
+    public void detach(Long userId) {
         followerUserIds.remove(userId);
     }
 
     @Override
-    public Set<String> getFollowerUserIds() {
+    public Set<Long> getFollowerUserIds() {
         return followerUserIds;
     }
 
