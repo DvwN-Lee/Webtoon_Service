@@ -25,7 +25,7 @@ class AuthorServiceTest {
     private WebtoonService webtoonService;
     private AuthorService authorService;
 
-    private String authorId; // 매 테스트마다 생성되는 작가 ID
+    private String authorId; // 매 테스트마다 생성되는 작가 ID (String 그대로 사용)
 
     @BeforeEach
     void setUp() {
@@ -98,7 +98,7 @@ class AuthorServiceTest {
                 "ONGOING",
                 "요약"
         );
-        String webtoonId = toon.getId();
+        Long webtoonId = toon.getId();   // 🔥 String → Long
 
         // when
         Episode ep1 = authorService.uploadEpisode(
@@ -137,7 +137,7 @@ class AuthorServiceTest {
                 "요약"
         );
 
-        String webtoonId = toon.getId();
+        Long webtoonId = toon.getId();   // 🔥 String → Long
 
         // 실제로 존재하지 않는, 틀린 authorId를 일부러 사용
         String wrongAuthorId = "WRONG-" + authorId;
@@ -154,7 +154,6 @@ class AuthorServiceTest {
                 )
         );
     }
-
 
     @Test
     @DisplayName("웹툰 삭제 시 Repository와 Author의 목록에서 모두 제거된다")
