@@ -1,0 +1,38 @@
+[
+  {
+    "nickname": "독자1",
+    "id": 1,
+    "username": "reader1",
+    "password": "1234",
+    "points": 1000,
+    "createdAt": "2025-11-12T15:28:43.1794786"
+  },
+  {
+    "nickname": "독자2",
+    "id": 2,
+    "username": "reader2",
+    "password": "1234",
+    "points": 1000,
+    "createdAt": "2025-11-12T15:28:43.2905399"
+  },
+  {
+    "authorName": "작가1",
+    "bio": "안녕하세요, 작가1입니다.",
+    "followerUserIds": [],
+    "id": 3,
+    "username": "author1",
+    "password": "1234",
+    "points": 0,
+    "createdAt": "2025-11-12T15:28:43.3170667"
+  },
+  {
+    "authorName": "작가2",
+    "bio": "안녕하세요, 작가2입니다.",
+    "followerUserIds": [],
+    "id": 4,
+    "username": "author2",
+    "password": "1234",
+    "points": 0,
+    "createdAt": "2025-11-12T15:28:43.3410704"
+  }
+]
