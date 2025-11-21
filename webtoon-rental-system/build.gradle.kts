@@ -97,3 +97,23 @@ tasks.register("createDataDir") {
 tasks.named("processResources") {
     dependsOn("createDataDir")
 }
+
+// ========================================
+// UTF-8 인코딩 강제 설정
+// ========================================
+
+tasks.compileJava {
+    options.encoding = "UTF-8"
+}
+
+tasks.compileTestJava {
+    options.encoding = "UTF-8"
+}
+
+tasks.javadoc {
+    options.encoding = "UTF-8"
+}
+
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
+}
