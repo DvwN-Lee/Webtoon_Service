@@ -1,12 +1,22 @@
 [
   {
-    "nickname": "독자A",
+    "nickname": "독자51181",
     "followingWebtoonIds": [],
     "notifications": [],
-    "id": 1,
-    "username": "reader1",
+    "id": 4,
+    "username": "reader51181",
     "password": "pass1234",
     "points": 1000,
-    "createdAt": "2025-11-21T16:59:51.29571"
+    "createdAt": "2025-11-21T22:27:45.118886"
+  },
+  {
+    "nickname": "독자51182",
+    "followingWebtoonIds": [],
+    "notifications": [],
+    "id": 5,
+    "username": "reader51182",
+    "password": "pass1234",
+    "points": 1000,
+    "createdAt": "2025-11-21T22:27:45.11935"
   }
 ]

@@ -12,12 +12,13 @@ public class InMemoryPurchaseRepository extends PurchaseRepository {
     private long seq = 1L;
 
     @Override
-    public void save(Purchase purchase) {
+    public Purchase save(Purchase purchase) {
         if (purchase.getId() == null) {
             purchase.setId(seq++);
         }
         store.removeIf(p -> p.getId().equals(purchase.getId()));
         store.add(purchase);
+        return purchase;
     }
 
     @Override

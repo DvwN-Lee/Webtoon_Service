@@ -4,6 +4,7 @@ import com.webtoon.domain.Author;
 import com.webtoon.domain.Episode;
 import com.webtoon.domain.Webtoon;
 import com.webtoon.repository.AuthorRepository;
+import com.webtoon.repository.UserRepository;
 import com.webtoon.repository.WebtoonRepository;
 
 import java.util.Comparator;
@@ -20,38 +21,78 @@ import java.util.stream.Collectors;
  */
 public class AuthorService {
 
-    private final AuthorRepository authorRepository;
+    private final Object repository; // AuthorRepository 또는 UserRepository
+    private final boolean usesUserRepository;
     private final WebtoonRepository webtoonRepository;
     private final WebtoonService webtoonService;
 
+    /**
+     * 테스트용 생성자 (AuthorRepository 사용)
+     */
     public AuthorService(AuthorRepository authorRepository,
                          WebtoonRepository webtoonRepository,
                          WebtoonService webtoonService) {
-        this.authorRepository = authorRepository;
+        this.repository = authorRepository;
+        this.usesUserRepository = false;
         this.webtoonRepository = webtoonRepository;
         this.webtoonService = webtoonService;
+    }
+
+    /**
+     * 프로덕션용 생성자 (UserRepository 사용)
+     */
+    public AuthorService(UserRepository userRepository,
+                         WebtoonRepository webtoonRepository,
+                         WebtoonService webtoonService) {
+        this.repository = userRepository;
+        this.usesUserRepository = true;
+        this.webtoonRepository = webtoonRepository;
+        this.webtoonService = webtoonService;
+    }
+
+    private AuthorRepository getAuthorRepository() {
+        return (AuthorRepository) repository;
+    }
+
+    private UserRepository getUserRepository() {
+        return (UserRepository) repository;
     }
 
     // ================= 프로필 관련 =================
 
     /** 작가 프로필 조회 */
     public Author getProfile(Long authorId) {
-        return authorRepository.findById(authorId)
-                .orElseThrow(() -> new IllegalArgumentException("작가를 찾을 수 없습니다: " + authorId));
+        if (usesUserRepository) {
+            return getUserRepository().findById(authorId)
+                    .filter(u -> u instanceof Author)
+                    .map(u -> (Author) u)
+                    .orElseThrow(() -> new IllegalArgumentException("작가를 찾을 수 없습니다: " + authorId));
+        } else {
+            return getAuthorRepository().findById(authorId)
+                    .orElseThrow(() -> new IllegalArgumentException("작가를 찾을 수 없습니다: " + authorId));
+        }
     }
 
     /** 작가명 변경 */
     public void updateAuthorName(Long authorId, String newName) {
         Author author = getProfile(authorId);
         author.updateAuthorName(newName);
-        authorRepository.save(author);
+        if (usesUserRepository) {
+            getUserRepository().save(author);
+        } else {
+            getAuthorRepository().save(author);
+        }
     }
 
     /** 자기소개 변경 */
     public void updateBio(Long authorId, String newBio) {
         Author author = getProfile(authorId);
         author.updateBio(newBio);
-        authorRepository.save(author);
+        if (usesUserRepository) {
+            getUserRepository().save(author);
+        } else {
+            getAuthorRepository().save(author);
+        }
     }
 
     // ================= 웹툰 생성/수정/삭제 =================
@@ -82,7 +123,11 @@ public class AuthorService {
 
         // 작가 도메인에 연재 목록 반영
         author.createWebtoon(webtoon);
-        authorRepository.save(author);
+        if (usesUserRepository) {
+            getUserRepository().save(author);
+        } else {
+            getAuthorRepository().save(author);
+        }
 
         return webtoon;
     }
@@ -159,7 +204,11 @@ public class AuthorService {
 
         webtoonRepository.deleteById(webtoonId);
         author.removeWebtoon(webtoonId);
-        authorRepository.save(author);
+        if (usesUserRepository) {
+            getUserRepository().save(author);
+        } else {
+            getAuthorRepository().save(author);
+        }
     }
 
     // ================= 홈 화면용 조회 =================

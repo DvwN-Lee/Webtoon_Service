@@ -66,11 +66,12 @@ public class NotificationService {
 
     /** 알림 단건 읽음 처리 */
     public void markAsRead(Long notificationId) {
-        Notification n = notificationRepository.findById(notificationId);
-        if (n != null && !n.isRead()) {
-            n.markAsRead();
-            notificationRepository.update(n);
-        }
+        notificationRepository.findById(notificationId).ifPresent(n -> {
+            if (!n.isRead()) {
+                n.markAsRead();
+                notificationRepository.update(n);
+            }
+        });
     }
 
     /** 독자별 모든 알림 일괄 읽음 처리 */

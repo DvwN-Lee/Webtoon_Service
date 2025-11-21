@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "title": "zzzz",
+    "authorId": 6,
+    "genres": [
+      "기타"
+    ],
+    "status": "ONGOING",
+    "summary": "",
+    "episodeIds": [],
+    "followerUserIds": [],
+    "popularity": 0,
+    "createdAt": "2025-11-21T22:29:50.846129",
+    "updatedAt": "2025-11-21T22:29:50.846152"
+  }
+]

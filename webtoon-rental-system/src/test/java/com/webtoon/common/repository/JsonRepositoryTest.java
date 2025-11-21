@@ -30,7 +30,7 @@ class JsonRepositoryTest {
 
         // When
         repository.save(entity);
-        TestEntity found = repository.findById(entity.getId());
+        TestEntity found = repository.findById(entity.getId()).orElse(null);
 
         // Then
         assertNotNull(found);
@@ -64,7 +64,8 @@ class JsonRepositoryTest {
         repository.update(entity);
 
         // Then
-        TestEntity updated = repository.findById(entity.getId());
+        TestEntity updated = repository.findById(entity.getId()).orElse(null);
+        assertNotNull(updated);
         assertEquals("Updated", updated.getName());
     }
 
@@ -76,10 +77,10 @@ class JsonRepositoryTest {
         repository.save(entity);
 
         // When
-        repository.delete(entity.getId());
+        repository.deleteById(entity.getId());
 
         // Then
-        assertNull(repository.findById(entity.getId()));
+        assertFalse(repository.findById(entity.getId()).isPresent());
     }
 
     @Test

@@ -1,6 +1,8 @@
 [
   {
     "nickname": "독자1",
+    "followingWebtoonIds": [],
+    "notifications": [],
     "id": 1,
     "username": "reader1",
     "password": "1234",
@@ -9,6 +11,8 @@
   },
   {
     "nickname": "독자2",
+    "followingWebtoonIds": [],
+    "notifications": [],
     "id": 2,
     "username": "reader2",
     "password": "1234",
@@ -18,7 +22,7 @@
   {
     "authorName": "작가1",
     "bio": "안녕하세요, 작가1입니다.",
-    "followerUserIds": [],
+    "webtoons": [],
     "id": 3,
     "username": "author1",
     "password": "1234",
@@ -28,11 +32,46 @@
   {
     "authorName": "작가2",
     "bio": "안녕하세요, 작가2입니다.",
-    "followerUserIds": [],
+    "webtoons": [],
     "id": 4,
     "username": "author2",
     "password": "1234",
     "points": 0,
     "createdAt": "2025-11-12T15:28:43.3410704"
+  },
+  {
+    "nickname": "test",
+    "followingWebtoonIds": [],
+    "notifications": [],
+    "id": 5,
+    "username": "testt",
+    "password": "1234",
+    "points": 1000,
+    "createdAt": "2025-11-21T22:27:33.193863"
+  },
+  {
+    "authorName": "testttt",
+    "webtoons": [
+      {
+        "id": 1,
+        "title": "zzzz",
+        "authorId": 6,
+        "genres": [
+          "기타"
+        ],
+        "status": "ONGOING",
+        "summary": "",
+        "episodeIds": [],
+        "followerUserIds": [],
+        "popularity": 0,
+        "createdAt": "2025-11-21T22:29:50.846129",
+        "updatedAt": "2025-11-21T22:29:50.846152"
+      }
+    ],
+    "id": 6,
+    "username": "testtt",
+    "password": "1234",
+    "points": 0,
+    "createdAt": "2025-11-21T22:28:56.675389"
   }
 ]

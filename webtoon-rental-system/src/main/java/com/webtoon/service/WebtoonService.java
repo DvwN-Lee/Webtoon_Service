@@ -188,7 +188,13 @@ public class WebtoonService {
         Webtoon webtoon = new Webtoon();
         webtoon.setTitle(title);
         webtoon.setAuthorId(authorId);
-        // status/genres/summary 등은 필요 시 외부에서 세팅
+
+        // 기본값 설정
+        webtoon.setStatus("ONGOING");  // 기본: 연재 중
+        webtoon.setGenres(java.util.Arrays.asList("기타"));  // 기본 장르
+        webtoon.setSummary("준비 중입니다.");  // 기본 줄거리
+        webtoon.setPopularity(0);  // 기본 인기도
+
         return webtoonRepository.save(webtoon);
     }
 
@@ -205,10 +211,11 @@ public class WebtoonService {
         webtoon.attach(userId);
 
         // Reader 객체를 Observer로 등록
-        User user = userRepository.findById(userId);
-        if (user instanceof Reader) {
-            webtoon.registerObserver((Reader) user);
-        }
+        userRepository.findById(userId).ifPresent(user -> {
+            if (user instanceof Reader) {
+                webtoon.registerObserver((Reader) user);
+            }
+        });
 
         webtoonRepository.save(webtoon); // 변경 반영
     }
@@ -260,14 +267,15 @@ public class WebtoonService {
         String message = String.format("'%s'에 새 회차가 추가되었습니다.", webtoon.getTitle());
 
         for (Long followerId : webtoon.getFollowerUserIds()) {
-            User user = userRepository.findById(followerId);
-            if (user instanceof Reader) {
-                Reader reader = (Reader) user;
-                // Observer 패턴: Reader.update() 호출 (콘솔 출력)
-                reader.update(webtoon.getId(), webtoon.getTitle(), message);
-                // NotificationRepository에도 저장
-                notificationService.createNotification(followerId, webtoon.getId(), message);
-            }
+            userRepository.findById(followerId).ifPresent(user -> {
+                if (user instanceof Reader) {
+                    Reader reader = (Reader) user;
+                    // Observer 패턴: Reader.update() 호출 (콘솔 출력)
+                    reader.update(webtoon.getId(), webtoon.getTitle(), message);
+                    // NotificationRepository에도 저장
+                    notificationService.createNotification(followerId, webtoon.getId(), message);
+                }
+            });
         }
     }
 }

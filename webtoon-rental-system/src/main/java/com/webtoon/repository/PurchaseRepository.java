@@ -34,4 +34,12 @@ public class PurchaseRepository extends JsonRepository<Purchase> {
                 .filter(p -> p.getReaderId().equals(readerId))
                 .collect(Collectors.toList());
     }
+
+    // 특정 독자의 특정 회차 구매 기록 조회
+    public Purchase findByReaderIdAndEpisodeId(Long readerId, Long episodeId) {
+        return findByReaderId(readerId).stream()
+                .filter(p -> p.getEpisodeId().equals(episodeId))
+                .findFirst()
+                .orElse(null);
+    }
 }

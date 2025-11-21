@@ -12,12 +12,13 @@ public class InMemoryPaymentHistoryRepository extends PaymentHistoryRepository {
     private long seq = 1L;
 
     @Override
-    public void save(PaymentHistory history) {
+    public PaymentHistory save(PaymentHistory history) {
         if (history.getId() == null) {
             history.setId(seq++);
         }
         store.removeIf(h -> h.getId().equals(history.getId()));
         store.add(history);
+        return history;
     }
 
     @Override

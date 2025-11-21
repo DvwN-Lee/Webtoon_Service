@@ -68,7 +68,8 @@ class NotificationServiceTest {
         notificationService.markAsRead(n.getId());
 
         // Then
-        Notification updated = notificationRepository.findById(n.getId());
+        Notification updated = notificationRepository.findById(n.getId()).orElse(null);
+        assertNotNull(updated);
         assertTrue(updated.isRead());
     }
 

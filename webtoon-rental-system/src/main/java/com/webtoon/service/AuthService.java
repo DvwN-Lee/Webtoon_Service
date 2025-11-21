@@ -5,6 +5,7 @@ import com.webtoon.common.validation.Validator;
 import com.webtoon.domain.Author;
 import com.webtoon.domain.Reader;
 import com.webtoon.domain.User;
+import com.webtoon.repository.ReaderRepository;
 import com.webtoon.repository.UserRepository;
 
 /**
@@ -14,15 +15,24 @@ import com.webtoon.repository.UserRepository;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final ReaderRepository readerRepository;
     private User currentUser;  // 현재 로그인된 사용자 (세션)
 
     public AuthService() {
         this.userRepository = new UserRepository();
+        this.readerRepository = new ReaderRepository();
     }
 
     // 테스트용 생성자 (의존성 주입)
     public AuthService(UserRepository userRepository) {
         this.userRepository = userRepository;
+        this.readerRepository = new ReaderRepository();
+    }
+
+    // 완전한 DI 생성자
+    public AuthService(UserRepository userRepository, ReaderRepository readerRepository) {
+        this.userRepository = userRepository;
+        this.readerRepository = readerRepository;
     }
 
     /**
@@ -51,8 +61,9 @@ public class AuthService {
         // 3. Reader 생성 (초기 포인트 1000P 자동 지급)
         Reader reader = new Reader(username, password, nickname);
 
-        // 4. 저장
+        // 4. 저장 (UserRepository와 ReaderRepository 모두에 저장)
         userRepository.save(reader);
+        readerRepository.save(reader);
 
         System.out.println("✅ 독자 회원가입 성공: " + reader.getDisplayName() + " (초기 포인트: " + reader.getPoints() + "P)");
         return reader;

@@ -36,7 +36,7 @@ class ReaderRepositoryTest {
         Reader r = new Reader("reader1", "pass1234", "독자A");
 
         repository.save(r);
-        Reader found = repository.findById(r.getId());
+        Reader found = repository.findById(r.getId()).orElse(null);
 
         assertNotNull(found);
         assertEquals("reader1", found.getUsername());
@@ -64,7 +64,8 @@ class ReaderRepositoryTest {
         r.updateNickname("바뀐닉");
         repository.update(r);
 
-        Reader updated = repository.findById(r.getId());
+        Reader updated = repository.findById(r.getId()).orElse(null);
+        assertNotNull(updated);
         assertEquals("바뀐닉", updated.getNickname());
     }
 
@@ -75,9 +76,9 @@ class ReaderRepositoryTest {
         repository.save(r);
         Long id = r.getId();
 
-        repository.delete(id);
+        repository.deleteById(id);
 
-        assertNull(repository.findById(id));
+        assertFalse(repository.findById(id).isPresent());
     }
 
     @Test
@@ -91,7 +92,8 @@ class ReaderRepositoryTest {
         r.followWebtoon(102L);
         repository.update(r);
 
-        Reader afterFollow = repository.findById(r.getId());
+        Reader afterFollow = repository.findById(r.getId()).orElse(null);
+        assertNotNull(afterFollow);
         assertTrue(afterFollow.getFollowingWebtoonIds().contains(101L));
         assertTrue(afterFollow.getFollowingWebtoonIds().contains(102L));
 
@@ -99,7 +101,8 @@ class ReaderRepositoryTest {
         afterFollow.unfollowWebtoon(101L);
         repository.update(afterFollow);
 
-        Reader afterUnfollow = repository.findById(r.getId());
+        Reader afterUnfollow = repository.findById(r.getId()).orElse(null);
+        assertNotNull(afterUnfollow);
         assertFalse(afterUnfollow.getFollowingWebtoonIds().contains(101L));
         assertTrue(afterUnfollow.getFollowingWebtoonIds().contains(102L));
     }

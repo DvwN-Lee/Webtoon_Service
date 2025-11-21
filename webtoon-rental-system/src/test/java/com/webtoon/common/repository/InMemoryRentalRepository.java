@@ -12,12 +12,13 @@ public class InMemoryRentalRepository extends RentalRepository {
     private long seq = 1L;
 
     @Override
-    public void save(Rental rental) {
+    public Rental save(Rental rental) {
         if (rental.getId() == null) {
             rental.setId(seq++);
         }
         store.removeIf(r -> r.getId().equals(rental.getId()));
         store.add(rental);
+        return rental;
     }
 
     @Override

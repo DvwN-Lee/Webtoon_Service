@@ -41,4 +41,13 @@ public class RentalRepository extends JsonRepository<Rental> {
                 .filter(r -> !r.isExpired())
                 .collect(Collectors.toList());
     }
+
+    // 특정 독자의 특정 회차 대여 기록 조회 (활성 상태만)
+    public Rental findActiveRentalByReaderIdAndEpisodeId(Long readerId, Long episodeId) {
+        return findByReaderId(readerId).stream()
+                .filter(r -> r.getEpisodeId().equals(episodeId))
+                .filter(r -> !r.isExpired())
+                .findFirst()
+                .orElse(null);
+    }
 }
