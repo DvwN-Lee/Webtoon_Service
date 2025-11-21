@@ -76,8 +76,8 @@ public class AccessService {
                     .anyMatch(r -> !r.isExpired(clock));
 
             if (hasActiveRental) {
-                int rentalPrice = episode.getRentalPrice();
-                int purchasePrice = episode.getPurchasePrice();
+                int rentalPrice = episode.getRentPrice();
+                int purchasePrice = episode.getBuyPrice();
                 int diff = purchasePrice - rentalPrice;
 
                 // 구매가가 더 싸거나 같으면 추가 차감 없이 소장 처리만

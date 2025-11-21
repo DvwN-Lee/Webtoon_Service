@@ -20,7 +20,7 @@ public class PurchaseAccessStrategy implements AccessStrategy {
     @Override
     public Object execute(Reader reader, Episode episode, Clock clock) {
 
-        int price = episode.getPurchasePrice();
+        int price = episode.getBuyPrice();
 
         if (!reader.usePoints(price)) {
             return null;

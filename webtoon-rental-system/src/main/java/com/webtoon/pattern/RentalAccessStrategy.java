@@ -23,7 +23,7 @@ public class RentalAccessStrategy implements AccessStrategy {
     @Override
     public Object execute(Reader reader, Episode episode, Clock clock) {
 
-        int price = episode.getRentalPrice();
+        int price = episode.getRentPrice();
 
         if (!reader.usePoints(price)) {
             return null;
