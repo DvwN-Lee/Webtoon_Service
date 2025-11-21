@@ -70,8 +70,11 @@ public class AuthorService {
 
         Author author = getProfile(authorId);
 
+        // 🔥 UUID → Long 변환: Long.parseLong(...) 불가, 대신 Math.abs(hash)
+        Long webtoonId = Math.abs(UUID.randomUUID().getMostSignificantBits());
+
         Webtoon webtoon = new Webtoon(
-                UUID.randomUUID().toString(),
+                webtoonId,
                 title,
                 authorId,
                 genres,
@@ -93,7 +96,7 @@ public class AuthorService {
      * - 실제 회차 번호 증가/저장은 WebtoonService.publishEpisode에 위임.
      */
     public Episode uploadEpisode(String authorId,
-                                 String webtoonId,
+                                 Long webtoonId,
                                  String title,
                                  String content,
                                  Integer rentPrice,
@@ -114,7 +117,7 @@ public class AuthorService {
      * 웹툰 기본 정보 수정 (제목/장르/상태/요약)
      */
     public void updateWebtoon(String authorId,
-                              String webtoonId,
+                              Long webtoonId,
                               String newTitle,
                               List<String> newGenres,
                               String newStatus,
@@ -148,7 +151,7 @@ public class AuthorService {
      * - WebtoonRepository에서 제거
      * - Author.webtoons 목록에서도 제거
      */
-    public void deleteWebtoon(String authorId, String webtoonId) {
+    public void deleteWebtoon(String authorId, Long webtoonId) {
         Author author = getProfile(authorId);
 
         Webtoon webtoon = webtoonRepository.findById(webtoonId)

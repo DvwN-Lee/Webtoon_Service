@@ -104,7 +104,7 @@ public class Author extends User {
     }
 
     // 작가 연재 목록에서 특정 웹툰 제거 (웹툰 삭제 시 사용)
-    public void removeWebtoon(String webtoonId) {
+    public void removeWebtoon(Long webtoonId) {
         webtoons.removeIf(w -> w != null && webtoonId.equals(w.getId()));
     }
 
