@@ -4,7 +4,7 @@
     "readerId": 3,
     "webtoonId": 300,
     "message": "첫 번째 알림",
-    "createdAt": "2025-11-21T16:39:31.214652",
+    "createdAt": "2025-11-21T16:59:51.331317",
     "isRead": false
   },
   {
@@ -12,7 +12,7 @@
     "readerId": 3,
     "webtoonId": 300,
     "message": "두 번째 알림",
-    "createdAt": "2025-11-21T16:39:31.21497",
+    "createdAt": "2025-11-21T16:59:51.331596",
     "isRead": false
   },
   {
@@ -20,7 +20,7 @@
     "readerId": 4,
     "webtoonId": 1,
     "message": "\u0027밤의 상점\u0027에 새 회차가 추가되었습니다.",
-    "createdAt": "2025-11-21T16:39:31.228882",
+    "createdAt": "2025-11-21T16:59:51.349292",
     "isRead": false
   },
   {
@@ -28,7 +28,7 @@
     "readerId": 5,
     "webtoonId": 1,
     "message": "\u0027밤의 상점\u0027에 새 회차가 추가되었습니다.",
-    "createdAt": "2025-11-21T16:39:31.229705",
+    "createdAt": "2025-11-21T16:59:51.350277",
     "isRead": false
   },
   {
@@ -36,7 +36,7 @@
     "readerId": 4,
     "webtoonId": 1,
     "message": "\u0027밤의 상점\u0027에 새 회차가 추가되었습니다.",
-    "createdAt": "2025-11-21T16:39:31.230546",
+    "createdAt": "2025-11-21T16:59:51.351138",
     "isRead": false
   },
   {
@@ -44,7 +44,7 @@
     "readerId": 5,
     "webtoonId": 1,
     "message": "\u0027밤의 상점\u0027에 새 회차가 추가되었습니다.",
-    "createdAt": "2025-11-21T16:39:31.231314",
+    "createdAt": "2025-11-21T16:59:51.351979",
     "isRead": false
   }
 ]

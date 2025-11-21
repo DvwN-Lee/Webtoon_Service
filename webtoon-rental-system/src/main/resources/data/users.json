@@ -7,46 +7,46 @@
     "username": "reader123",
     "password": "pass1234",
     "points": 1000,
-    "createdAt": "2025-11-21T16:39:31.200507"
+    "createdAt": "2025-11-21T16:59:51.317471"
   },
   {
-    "authorName": "작가1220",
+    "authorName": "작가1340",
     "bio": "소개글",
     "webtoons": [],
     "id": 2,
-    "username": "author1220",
+    "username": "author1340",
     "password": "pass1234",
     "points": 0,
-    "createdAt": "2025-11-21T16:39:31.221433"
+    "createdAt": "2025-11-21T16:59:51.340922"
   },
   {
-    "authorName": "작가1222",
+    "authorName": "작가1341",
     "bio": "소개글",
     "webtoons": [],
     "id": 3,
-    "username": "author1222",
+    "username": "author1341",
     "password": "pass1234",
     "points": 0,
-    "createdAt": "2025-11-21T16:39:31.222914"
+    "createdAt": "2025-11-21T16:59:51.34242"
   },
   {
-    "nickname": "독자12221",
+    "nickname": "독자13411",
     "followingWebtoonIds": [],
     "notifications": [],
     "id": 4,
-    "username": "reader12221",
+    "username": "reader13411",
     "password": "pass1234",
     "points": 1000,
-    "createdAt": "2025-11-21T16:39:31.22413"
+    "createdAt": "2025-11-21T16:59:51.343888"
   },
   {
-    "nickname": "독자12222",
+    "nickname": "독자13412",
     "followingWebtoonIds": [],
     "notifications": [],
     "id": 5,
-    "username": "reader12222",
+    "username": "reader13412",
     "password": "pass1234",
     "points": 1000,
-    "createdAt": "2025-11-21T16:39:31.225397"
+    "createdAt": "2025-11-21T16:59:51.345388"
   }
 ]
