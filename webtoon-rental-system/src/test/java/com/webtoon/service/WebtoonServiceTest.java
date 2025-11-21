@@ -21,8 +21,8 @@ class WebtoonServiceTest {
     private EpisodeRepository episodeRepository;
     private WebtoonService webtoonService;
 
-    private String authorId1;
-    private String authorId2;
+    private Long authorId1;
+    private Long authorId2;
 
     @BeforeEach
     void setUp() {
@@ -32,8 +32,8 @@ class WebtoonServiceTest {
         webtoonService = new WebtoonService(webtoonRepository, episodeRepository, notificationService);
 
         // 테스트용 작가 ID 준비
-        authorId1 = "author-001";
-        authorId2 = "author-002";
+        authorId1 = 1L;
+        authorId2 = 2L;
     }
 
     @Test
@@ -55,7 +55,7 @@ class WebtoonServiceTest {
     @DisplayName("ID로 웹툰 단건 조회")
     void getWebtoonById() {
         // given: 숫자 형태의 ID로 웹툰 직접 생성
-        Webtoon webtoon = new Webtoon("100", "테스트 웹툰", authorId1,
+        Webtoon webtoon = new Webtoon(100L, "테스트 웹툰", authorId1,
                 Arrays.asList("판타지"), "ONGOING", "요약");
         webtoonRepository.save(webtoon);
 
@@ -64,7 +64,7 @@ class WebtoonServiceTest {
 
         // then
         assertNotNull(found);
-        assertEquals("100", found.getId());
+        assertEquals(100L, found.getId());
         assertEquals("테스트 웹툰", found.getTitle());
     }
 
@@ -187,15 +187,15 @@ class WebtoonServiceTest {
         Webtoon webtoon = webtoonService.createWebtoon("인기 웹툰", authorId1);
 
         // when
-        webtoonService.followWebtoon(webtoon.getId(), "reader-001");
-        webtoonService.followWebtoon(webtoon.getId(), "reader-002");
-        webtoonService.followWebtoon(webtoon.getId(), "reader-003");
+        webtoonService.followWebtoon(webtoon.getId(), 101L);
+        webtoonService.followWebtoon(webtoon.getId(), 102L);
+        webtoonService.followWebtoon(webtoon.getId(), 103L);
 
         // then
         Webtoon updated = webtoonRepository.findById(webtoon.getId()).orElseThrow();
         assertEquals(3, updated.getFollowerUserIds().size());
-        assertTrue(updated.getFollowerUserIds().contains("reader-001"));
-        assertTrue(updated.getFollowerUserIds().contains("reader-002"));
-        assertTrue(updated.getFollowerUserIds().contains("reader-003"));
+        assertTrue(updated.getFollowerUserIds().contains(101L));
+        assertTrue(updated.getFollowerUserIds().contains(102L));
+        assertTrue(updated.getFollowerUserIds().contains(103L));
     }
 }

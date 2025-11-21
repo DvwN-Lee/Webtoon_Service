@@ -9,7 +9,7 @@ import com.webtoon.domain.Webtoon;
 public class NotificationService {
 
     public void notifyNewEpisode(Webtoon webtoon, Episode episode) {
-        for (String userId : webtoon.getFollowerUserIds()) {
+        for (Long userId : webtoon.getFollowerUserIds()) {
             System.out.printf(
                     "[알림] 사용자 %s → 웹툰 '%s'의 새 회차 공개: %s (회차번호 %d)%n",
                     userId, webtoon.getTitle(), episode.getTitle(), episode.getNumber()

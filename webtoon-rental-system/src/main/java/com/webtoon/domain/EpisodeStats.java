@@ -6,26 +6,26 @@ package com.webtoon.domain;
  */
 public class EpisodeStats {
 
-    private final String episodeId;
-    private final String webtoonId;
+    private final Long episodeId;
+    private final Long webtoonId;
     private final int episodeNumber;
-    private final int viewCount;
+    private final long viewCount;
 
-    public EpisodeStats(String episodeId,
-                        String webtoonId,
+    public EpisodeStats(Long episodeId,
+                        Long webtoonId,
                         int episodeNumber,
-                        int viewCount) {
+                        long viewCount) {
         this.episodeId = episodeId;
         this.webtoonId = webtoonId;
         this.episodeNumber = episodeNumber;
         this.viewCount = viewCount;
     }
 
-    public String getEpisodeId() {
+    public Long getEpisodeId() {
         return episodeId;
     }
 
-    public String getWebtoonId() {
+    public Long getWebtoonId() {
         return webtoonId;
     }
 
@@ -33,15 +33,15 @@ public class EpisodeStats {
         return episodeNumber;
     }
 
-    public int getViewCount() {
+    public long getViewCount() {
         return viewCount;
     }
 
     @Override
     public String toString() {
         return "EpisodeStats{" +
-                "episodeId='" + episodeId + '\'' +
-                ", webtoonId='" + webtoonId + '\'' +
+                "episodeId=" + episodeId +
+                ", webtoonId=" + webtoonId +
                 ", episodeNumber=" + episodeNumber +
                 ", viewCount=" + viewCount +
                 '}';

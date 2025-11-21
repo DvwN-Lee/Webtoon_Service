@@ -8,7 +8,6 @@ import com.webtoon.repository.WebtoonRepository;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -36,20 +35,20 @@ public class AuthorService {
     // ================= 프로필 관련 =================
 
     /** 작가 프로필 조회 */
-    public Author getProfile(String authorId) {
+    public Author getProfile(Long authorId) {
         return authorRepository.findById(authorId)
                 .orElseThrow(() -> new IllegalArgumentException("작가를 찾을 수 없습니다: " + authorId));
     }
 
     /** 작가명 변경 */
-    public void updateAuthorName(String authorId, String newName) {
+    public void updateAuthorName(Long authorId, String newName) {
         Author author = getProfile(authorId);
         author.updateAuthorName(newName);
         authorRepository.save(author);
     }
 
     /** 자기소개 변경 */
-    public void updateBio(String authorId, String newBio) {
+    public void updateBio(Long authorId, String newBio) {
         Author author = getProfile(authorId);
         author.updateBio(newBio);
         authorRepository.save(author);
@@ -62,7 +61,7 @@ public class AuthorService {
      * - Webtoon 도메인 인스턴스를 만들고 저장한 뒤,
      *   Author.webtoons 목록에도 추가한다.
      */
-    public Webtoon createWebtoon(String authorId,
+    public Webtoon createWebtoon(Long authorId,
                                  String title,
                                  List<String> genres,
                                  String status,
@@ -71,7 +70,7 @@ public class AuthorService {
         Author author = getProfile(authorId);
 
         Webtoon webtoon = new Webtoon(
-                UUID.randomUUID().toString(),
+                null,
                 title,
                 authorId,
                 genres,
@@ -92,8 +91,8 @@ public class AuthorService {
      * 작가가 자신의 웹툰에 회차를 업로드한다.
      * - 실제 회차 번호 증가/저장은 WebtoonService.publishEpisode에 위임.
      */
-    public Episode uploadEpisode(String authorId,
-                                 String webtoonId,
+    public Episode uploadEpisode(Long authorId,
+                                 Long webtoonId,
                                  String title,
                                  String content,
                                  Integer rentPrice,
@@ -113,8 +112,8 @@ public class AuthorService {
     /**
      * 웹툰 기본 정보 수정 (제목/장르/상태/요약)
      */
-    public void updateWebtoon(String authorId,
-                              String webtoonId,
+    public void updateWebtoon(Long authorId,
+                              Long webtoonId,
                               String newTitle,
                               List<String> newGenres,
                               String newStatus,
@@ -148,7 +147,7 @@ public class AuthorService {
      * - WebtoonRepository에서 제거
      * - Author.webtoons 목록에서도 제거
      */
-    public void deleteWebtoon(String authorId, String webtoonId) {
+    public void deleteWebtoon(Long authorId, Long webtoonId) {
         Author author = getProfile(authorId);
 
         Webtoon webtoon = webtoonRepository.findById(webtoonId)
@@ -169,7 +168,7 @@ public class AuthorService {
      * 작가 홈 화면용 웹툰 목록 조회
      * - 기본적으로 작가의 모든 웹툰을 인기순(popularity 내림차순)으로 정렬해서 반환
      */
-    public List<Webtoon> getHomeScreen(String authorId) {
+    public List<Webtoon> getHomeScreen(Long authorId) {
         List<Webtoon> webtoons = webtoonRepository.findByAuthorId(authorId);
         return webtoons.stream()
                 .sorted(Comparator.comparingInt(Webtoon::getPopularity).reversed())

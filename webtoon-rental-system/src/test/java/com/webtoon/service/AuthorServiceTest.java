@@ -25,7 +25,7 @@ class AuthorServiceTest {
     private WebtoonService webtoonService;
     private AuthorService authorService;
 
-    private String authorId; // 매 테스트마다 생성되는 작가 ID
+    private Long authorId; // 매 테스트마다 생성되는 작가 ID
 
     @BeforeEach
     void setUp() {
@@ -43,7 +43,7 @@ class AuthorServiceTest {
         // 기본 작가 한 명 저장해두고 authorId 확보
         Author author = new Author("author1234", "pass1234", "원래작가명", "원래 소개");
         authorRepository.save(author);
-        authorId = String.valueOf(author.getId());
+        authorId = author.getId();
     }
 
     @Test
@@ -74,7 +74,7 @@ class AuthorServiceTest {
         // then
         assertNotNull(toon.getId());
         assertEquals("밤의 상점", toon.getTitle());
-        assertEquals(authorId, toon.getAuthorId());
+        assertEquals(authorId, Long.valueOf(toon.getAuthorId()));
 
         // 레포지토리에 저장되었는지
         Webtoon stored = webtoonRepository.findById(toon.getId()).orElseThrow();
@@ -98,7 +98,7 @@ class AuthorServiceTest {
                 "ONGOING",
                 "요약"
         );
-        String webtoonId = toon.getId();
+        Long webtoonId = toon.getId();
 
         // when
         Episode ep1 = authorService.uploadEpisode(
@@ -137,10 +137,10 @@ class AuthorServiceTest {
                 "요약"
         );
 
-        String webtoonId = toon.getId();
+        Long webtoonId = toon.getId();
 
         // 실제로 존재하지 않는, 틀린 authorId를 일부러 사용
-        String wrongAuthorId = "WRONG-" + authorId;
+        Long wrongAuthorId = 99999L;
 
         // when & then
         assertThrows(IllegalArgumentException.class, () ->

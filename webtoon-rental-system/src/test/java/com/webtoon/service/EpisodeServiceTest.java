@@ -22,7 +22,7 @@ class EpisodeServiceTest {
         episodeService = new EpisodeService(episodeRepository);
     }
 
-    private Episode newEpisode(String id, String webtoonId, int number,
+    private Episode newEpisode(Long id, Long webtoonId, int number,
                                String title, String content, int rent, int buy) {
         return new Episode(id, webtoonId, number, title, content, rent, buy);
     }
@@ -31,10 +31,10 @@ class EpisodeServiceTest {
     @DisplayName("웹툰별 회차 조회 시 번호 오름차순으로 정렬된다")
     void findByWebtoonId_sortedByNumber() {
         // given
-        String webtoonId = "toon-1";
-        Episode ep3 = newEpisode("ep3", webtoonId, 3, "3화", "내용3", 50, 100);
-        Episode ep1 = newEpisode("ep1", webtoonId, 1, "1화", "내용1", 50, 100);
-        Episode ep2 = newEpisode("ep2", webtoonId, 2, "2화", "내용2", 50, 100);
+        Long webtoonId = 1L;
+        Episode ep3 = newEpisode(null, webtoonId, 3, "3화", "내용3", 50, 100);
+        Episode ep1 = newEpisode(null, webtoonId, 1, "1화", "내용1", 50, 100);
+        Episode ep2 = newEpisode(null, webtoonId, 2, "2화", "내용2", 50, 100);
 
         episodeRepository.save(ep3);
         episodeRepository.save(ep1);
@@ -54,18 +54,19 @@ class EpisodeServiceTest {
     @DisplayName("회차의 제목/내용/가격을 수정할 수 있다")
     void updateTitleContentPrices() {
         // given
-        String webtoonId = "toon-1";
-        Episode ep = newEpisode("ep1", webtoonId, 1,
+        Long webtoonId = 1L;
+        Episode ep = newEpisode(null, webtoonId, 1,
                 "1화. 옛 제목", "옛 내용", 50, 100);
-        episodeRepository.save(ep);
+        Episode saved = episodeRepository.save(ep);
+        Long episodeId = saved.getId();
 
         // when
-        episodeService.updateTitle("ep1", "1화. 새 제목");
-        episodeService.updateContent("ep1", "새 내용");
-        episodeService.updatePrices("ep1", 70, 140);
+        episodeService.updateTitle(episodeId, "1화. 새 제목");
+        episodeService.updateContent(episodeId, "새 내용");
+        episodeService.updatePrices(episodeId, 70, 140);
 
         // then
-        Episode updated = episodeService.findById("ep1");
+        Episode updated = episodeService.findById(episodeId);
         assertEquals("1화. 새 제목", updated.getTitle());
         assertEquals("새 내용", updated.getContent());
         assertEquals(70, updated.getRentPrice());
@@ -76,17 +77,18 @@ class EpisodeServiceTest {
     @DisplayName("회차를 삭제하면 저장소에서 조회되지 않는다")
     void deleteEpisodeById() {
         // given
-        String webtoonId = "toon-1";
-        Episode ep = newEpisode("ep1", webtoonId, 1,
+        Long webtoonId = 1L;
+        Episode ep = newEpisode(null, webtoonId, 1,
                 "1화", "내용", 50, 100);
-        episodeRepository.save(ep);
-        assertNotNull(episodeRepository.findById("ep1").orElse(null)); // 존재 확인
+        Episode saved = episodeRepository.save(ep);
+        Long episodeId = saved.getId();
+        assertNotNull(episodeRepository.findById(episodeId).orElse(null)); // 존재 확인
 
         // when
-        episodeService.delete("ep1");
+        episodeService.delete(episodeId);
 
         // then
-        assertTrue(episodeRepository.findById("ep1").isEmpty());
+        assertTrue(episodeRepository.findById(episodeId).isEmpty());
         assertTrue(episodeService.findByWebtoonId(webtoonId).isEmpty());
     }
 
@@ -94,10 +96,11 @@ class EpisodeServiceTest {
     @DisplayName("사용자별 회차 상세 조회 시 조회수가 증가한다")
     void getEpisodeDetailForUser_incrementsViewCount() {
         // given
-        String webtoonId = "toon-1";
-        Episode ep = newEpisode("ep1", webtoonId, 1,
+        Long webtoonId = 1L;
+        Episode ep = newEpisode(null, webtoonId, 1,
                 "1화. 테스트", "내용", 50, 100);
-        episodeRepository.save(ep);
+        Episode saved = episodeRepository.save(ep);
+        Long episodeId = saved.getId();
 
         // 초기 조회수 확인
         assertEquals(0, ep.getViewCount());
@@ -111,7 +114,7 @@ class EpisodeServiceTest {
         assertEquals(2, result2.getViewCount());
 
         // then: 저장소에서 조회해도 조회수가 반영됨
-        Episode stored = episodeService.findById("ep1");
+        Episode stored = episodeService.findById(episodeId);
         assertEquals(2, stored.getViewCount());
     }
 
@@ -119,17 +122,18 @@ class EpisodeServiceTest {
     @DisplayName("Episode 엔티티 기반 삭제")
     void deleteEpisode_withEntity() {
         // given
-        String webtoonId = "toon-1";
-        Episode ep = newEpisode("ep1", webtoonId, 1,
+        Long webtoonId = 1L;
+        Episode ep = newEpisode(null, webtoonId, 1,
                 "1화", "내용", 50, 100);
-        episodeRepository.save(ep);
-        assertNotNull(episodeRepository.findById("ep1").orElse(null));
+        Episode saved = episodeRepository.save(ep);
+        Long episodeId = saved.getId();
+        assertNotNull(episodeRepository.findById(episodeId).orElse(null));
 
         // when
-        episodeService.deleteEpisode(ep);
+        episodeService.deleteEpisode(saved);
 
         // then
-        assertTrue(episodeRepository.findById("ep1").isEmpty());
+        assertTrue(episodeRepository.findById(episodeId).isEmpty());
     }
 
     @Test

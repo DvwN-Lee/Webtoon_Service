@@ -117,16 +117,16 @@ import java.util.*;
 public class Webtoon implements Subject {
 
     // 식별/기본 정보
-    private String id;                 // UUID 등
+    private Long id;                   // Repository에서 자동 생성
     private String title;              // 작품명
-    private String authorId;           // 작가(User/Author)의 id
+    private Long authorId;             // 작가(User/Author)의 id
     private List<String> genres = new ArrayList<>(); // ["판타지","액션"]
     private String status;             // "ONGOING" | "COMPLETED"
     private String summary;            // 한 줄 소개 (상세 화면용)
 
     // 관계/통계(최소)
-    private List<String> episodeIds = new ArrayList<>(); // 회차 id 목록 (번호순은 Service에서 정렬)
-    private final Set<String> followerUserIds = new HashSet<>(); // 팔로워
+    private List<Long> episodeIds = new ArrayList<>(); // 회차 id 목록 (번호순은 Service에서 정렬)
+    private final Set<Long> followerUserIds = new HashSet<>(); // 팔로워
     private int popularity = 0;        // 정렬용(임시): 조회/대여/구매 합산 등
 
     // 메타
@@ -136,7 +136,7 @@ public class Webtoon implements Subject {
     // ====== 생성자 ======
     public Webtoon() { }
 
-    public Webtoon(String id, String title, String authorId, List<String> genres,
+    public Webtoon(Long id, String title, Long authorId, List<String> genres,
                    String status, String summary) {
         this.id = id;
         this.title = title;
@@ -147,7 +147,7 @@ public class Webtoon implements Subject {
     }
 
     // ====== 도메인 메서드 ======
-    public void addEpisode(String episodeId) {
+    public void addEpisode(Long episodeId) {
         this.episodeIds.add(episodeId);
         touch();
         // 회차 추가 시 팔로워에게 알림
@@ -162,7 +162,7 @@ public class Webtoon implements Subject {
      * 최신 회차 ID 조회
      * @return 최신 회차 ID (없으면 null)
      */
-    public String getLatestEpisode() {
+    public Long getLatestEpisode() {
         if (episodeIds.isEmpty()) {
             return null;
         }
@@ -179,24 +179,24 @@ public class Webtoon implements Subject {
 
     // ====== Subject 구현 ======
     @Override
-    public String getSubjectId()   { return id; }
+    public String getSubjectId()   { return String.valueOf(id); }
 
     @Override
     public String getSubjectName() { return title; }
 
     @Override
-    public void attach(String userId)   { followerUserIds.add(userId); }
+    public void attach(Long userId)   { followerUserIds.add(userId); }
 
     @Override
-    public void detach(String userId)   { followerUserIds.remove(userId); }
+    public void detach(Long userId)   { followerUserIds.remove(userId); }
 
     @Override
-    public Set<String> getFollowerUserIds() { return followerUserIds; }
+    public Set<Long> getFollowerUserIds() { return followerUserIds; }
 
     @Override
     public void notifyObservers() {
         // 과제 요구사항에 맞춰 콘솔 출력 방식으로 Observer 패턴 역할만 수행
-        for (String userId : followerUserIds) {
+        for (Long userId : followerUserIds) {
             System.out.printf(
                     "[알림] 사용자 %s → 웹툰 '%s'에 새 회차가 추가되었습니다.%n",
                     userId, title
@@ -205,14 +205,14 @@ public class Webtoon implements Subject {
     }
 
     // ====== Getter / Setter ======
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; touch(); }
 
-    public String getAuthorId() { return authorId; }
-    public void setAuthorId(String authorId) { this.authorId = authorId; touch(); }
+    public Long getAuthorId() { return authorId; }
+    public void setAuthorId(Long authorId) { this.authorId = authorId; touch(); }
 
     public List<String> getGenres() { return genres; }
     public void setGenres(List<String> genres) { this.genres = genres; touch(); }
@@ -223,8 +223,8 @@ public class Webtoon implements Subject {
     public String getSummary() { return summary; }
     public void setSummary(String summary) { this.summary = summary; touch(); }
 
-    public List<String> getEpisodeIds() { return episodeIds; }
-    public void setEpisodeIds(List<String> episodeIds) { this.episodeIds = episodeIds; touch(); }
+    public List<Long> getEpisodeIds() { return episodeIds; }
+    public void setEpisodeIds(List<Long> episodeIds) { this.episodeIds = episodeIds; touch(); }
 
     public int getPopularity() { return popularity; }
     public void setPopularity(int popularity) { this.popularity = popularity; }

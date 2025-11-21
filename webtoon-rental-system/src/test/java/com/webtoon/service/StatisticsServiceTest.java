@@ -7,7 +7,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -134,12 +133,12 @@ class StatisticsServiceTest {
         // 작가 생성
         Author author = new Author("author123", "pass1234", "테스트작가", "소개");
         author.setId(1L);
-        String authorId = String.valueOf(author.getId());
+        Long authorId = author.getId();
 
         // 작가의 웹툰 3개 생성
-        Webtoon w1 = new Webtoon("1", "웹툰A", authorId, Arrays.asList("판타지"), "ONGOING", "요약A");
-        Webtoon w2 = new Webtoon("2", "웹툰B", authorId, Arrays.asList("로맨스"), "ONGOING", "요약B");
-        Webtoon w3 = new Webtoon("3", "웹툰C", authorId, Arrays.asList("액션"), "COMPLETED", "요약C");
+        Webtoon w1 = new Webtoon(1L, "웹툰A", authorId, Arrays.asList("판타지"), "ONGOING", "요약A");
+        Webtoon w2 = new Webtoon(2L, "웹툰B", authorId, Arrays.asList("로맨스"), "ONGOING", "요약B");
+        Webtoon w3 = new Webtoon(3L, "웹툰C", authorId, Arrays.asList("액션"), "COMPLETED", "요약C");
 
         webtoonRepo.save(w1);
         webtoonRepo.save(w2);
@@ -171,7 +170,7 @@ class StatisticsServiceTest {
 
         // then
         assertNotNull(stats);
-        assertEquals(authorId, stats.getAuthorId());
+        assertEquals(String.valueOf(authorId), stats.getAuthorId());
         assertEquals("테스트작가", stats.getAuthorName());
         assertEquals(3, stats.getWebtoonCount(), "작가의 웹툰 수는 3개");
         assertEquals(6, stats.getTotalEpisodeCount(), "총 회차 수는 2+3+1=6");
@@ -218,8 +217,8 @@ class StatisticsServiceTest {
     void getEpisodeStats_returnsViewCount() {
         // given
         Episode episode = new Episode(
-                UUID.randomUUID().toString(),
-                "webtoon-1",
+                null,
+                1L,
                 5,
                 "5화. 테스트",
                 "내용",

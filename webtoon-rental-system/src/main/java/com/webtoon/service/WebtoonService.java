@@ -95,7 +95,6 @@ import com.webtoon.repository.WebtoonRepository;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -126,11 +125,10 @@ public class WebtoonService {
         return webtoonRepository.findAll();
     }
 
-    /** ID로 단건 조회 (스펙상 Long 사용, 내부에서는 String ID와 매핑) */
+    /** ID로 단건 조회 */
     public Webtoon getWebtoon(Long id) {
-        String webtoonId = String.valueOf(id);
-        return webtoonRepository.findById(webtoonId)
-                .orElseThrow(() -> new IllegalArgumentException("웹툰을 찾을 수 없습니다: " + webtoonId));
+        return webtoonRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("웹툰을 찾을 수 없습니다: " + id));
     }
 
     /** 제목 키워드 검색 */
@@ -139,7 +137,7 @@ public class WebtoonService {
     }
 
     /** 작가 ID로 검색 */
-    public List<Webtoon> searchByAuthor(String authorId) {
+    public List<Webtoon> searchByAuthor(Long authorId) {
         return webtoonRepository.findByAuthorId(authorId);
     }
 
@@ -168,11 +166,10 @@ public class WebtoonService {
     // ====== 생성/팔로우/회차 발행 ======
 
     /**
-     * 새 웹툰 생성 (id는 UUID로 생성)
+     * 새 웹툰 생성 (id는 repository에서 자동 생성)
      */
-    public Webtoon createWebtoon(String title, String authorId) {
+    public Webtoon createWebtoon(String title, Long authorId) {
         Webtoon webtoon = new Webtoon();
-        webtoon.setId(UUID.randomUUID().toString());
         webtoon.setTitle(title);
         webtoon.setAuthorId(authorId);
         // status/genres/summary 등은 필요 시 외부에서 세팅
@@ -182,7 +179,7 @@ public class WebtoonService {
     /**
      * 작품 팔로우
      */
-    public void followWebtoon(String webtoonId, String userId) {
+    public void followWebtoon(Long webtoonId, Long userId) {
         Webtoon webtoon = webtoonRepository.findById(webtoonId)
                 .orElseThrow(() -> new IllegalArgumentException("웹툰을 찾을 수 없습니다: " + webtoonId));
         webtoon.attach(userId);
@@ -192,10 +189,10 @@ public class WebtoonService {
     /**
      * 회차 발행:
      * - 다음 회차 번호 = 기존 최신 number + 1 (없으면 1)
-     * - Episode id는 UUID 생성
+     * - Episode id는 repository에서 자동 생성
      * - 저장 후 Webtoon.addEpisode() 내부에서 notifyObservers() 호출
      */
-    public Episode publishEpisode(String webtoonId, String title, String content,
+    public Episode publishEpisode(Long webtoonId, String title, String content,
                                   Integer rentPrice, Integer buyPrice) {
         Webtoon webtoon = webtoonRepository.findById(webtoonId)
                 .orElseThrow(() -> new IllegalArgumentException("웹툰을 찾을 수 없습니다: " + webtoonId));
@@ -205,7 +202,7 @@ public class WebtoonService {
                 .orElse(1);
 
         Episode episode = new Episode(
-                UUID.randomUUID().toString(),
+                null,
                 webtoonId,
                 nextNumber,
                 title,

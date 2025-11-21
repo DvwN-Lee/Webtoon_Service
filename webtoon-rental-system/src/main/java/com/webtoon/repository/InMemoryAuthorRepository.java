@@ -4,25 +4,27 @@ package com.webtoon.repository;
 import com.webtoon.domain.Author;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 메모리 기반 작가 저장소 구현
  */
 public class InMemoryAuthorRepository implements AuthorRepository {
 
-    // authorId(String) -> Author
-    private final Map<String, Author> store = new ConcurrentHashMap<>();
+    private final Map<Long, Author> store = new ConcurrentHashMap<>();
+    private final AtomicLong idGenerator = new AtomicLong(1L);
 
     @Override
     public Author save(Author author) {
-        // Author의 User.id를 문자열로 변환해 키로 사용
-        String authorId = String.valueOf(author.getId());
-        store.put(authorId, author);
+        if (author.getId() == null) {
+            author.setId(idGenerator.getAndIncrement());
+        }
+        store.put(author.getId(), author);
         return author;
     }
 
     @Override
-    public Optional<Author> findById(String authorId) {
+    public Optional<Author> findById(Long authorId) {
         return Optional.ofNullable(store.get(authorId));
     }
 
@@ -32,7 +34,7 @@ public class InMemoryAuthorRepository implements AuthorRepository {
     }
 
     @Override
-    public void deleteById(String authorId) {
+    public void deleteById(Long authorId) {
         store.remove(authorId);
     }
 }

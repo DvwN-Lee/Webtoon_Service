@@ -13,12 +13,12 @@ import java.util.List;
 public class TestNotificationService extends NotificationService {
 
     public static class Notice {
-        public final String userId;
+        public final Long userId;
         public final String webtoonTitle;
         public final int episodeNumber;
         public final String episodeTitle;
 
-        public Notice(String userId, String webtoonTitle, int episodeNumber, String episodeTitle) {
+        public Notice(Long userId, String webtoonTitle, int episodeNumber, String episodeTitle) {
             this.userId = userId;
             this.webtoonTitle = webtoonTitle;
             this.episodeNumber = episodeNumber;
@@ -31,7 +31,7 @@ public class TestNotificationService extends NotificationService {
     @Override
     public void notifyNewEpisode(Webtoon webtoon, Episode episode) {
         // 원래 콘솔 출력은 건너뛰고, 기록만 남긴다.
-        for (String userId : webtoon.getFollowerUserIds()) {
+        for (Long userId : webtoon.getFollowerUserIds()) {
             notices.add(new Notice(userId, webtoon.getTitle(), episode.getNumber(), episode.getTitle()));
         }
     }

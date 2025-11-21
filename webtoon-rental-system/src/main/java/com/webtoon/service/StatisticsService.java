@@ -108,8 +108,8 @@ public class StatisticsService {
             throw new IllegalStateException("Author 통계를 사용하려면 WebtoonRepository가 필요합니다.");
         }
 
-        // Author.id → Webtoon.authorId 매핑 (String으로 통일)
-        String authorIdKey = String.valueOf(author.getId());
+        // Author.id → Webtoon.authorId 매핑
+        Long authorIdKey = author.getId();
 
         // 해당 작가의 모든 웹툰
         List<Webtoon> webtoons = webtoonRepository.findByAuthorId(authorIdKey);
@@ -121,16 +121,8 @@ public class StatisticsService {
         for (Webtoon webtoon : webtoons) {
             if (webtoon == null || webtoon.getId() == null) continue;
 
-            // Statistics는 webtoonId(Long) 기준이라, 숫자로 변환 가능한 경우만 집계
-            Long statsKey;
-            try {
-                statsKey = Long.valueOf(webtoon.getId());
-            } catch (NumberFormatException e) {
-                // ID가 Long 형태가 아닐 경우 통계 집계 대상에서 제외
-                continue;
-            }
-
-            Statistics s = repo.findByWebtoonId(statsKey).orElse(null);
+            // 웹툰 ID로 통계 조회 (이제 타입 변환 불필요)
+            Statistics s = repo.findByWebtoonId(webtoon.getId()).orElse(null);
             if (s != null) {
                 totalEpisodeCount += s.getEpisodeCount();
                 totalViews += s.getTotalViews();
@@ -161,7 +153,7 @@ public class StatisticsService {
                 episode.getId(),
                 episode.getWebtoonId(),
                 episode.getNumber(),
-                episode.getViewCount()
+                (long) episode.getViewCount()
         );
     }
 }

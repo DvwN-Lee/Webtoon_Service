@@ -48,7 +48,7 @@ class WebtoonFlowTest {
 
         // 3) 작가 회원가입
         Author author = auth.registerAuthor(username, "pass1234", authorName, "소개글");
-        String authorId = String.valueOf(author.getId());
+        Long authorId = author.getId();
 
         // 4) 레포지토리 & 서비스 구성
         EpisodeRepository episodeRepo = new InMemoryEpisodeRepository();
@@ -59,17 +59,17 @@ class WebtoonFlowTest {
         // 5) 웹툰 생성
         Webtoon toon = webtoonService.createWebtoon("밤의 상점", authorId);
         assertNotNull(toon.getId());
-        assertEquals(authorId, toon.getAuthorId());
+        assertEquals(authorId, Long.valueOf(toon.getAuthorId()));
 
         // 6) 팔로우 2명
-        webtoonService.followWebtoon(toon.getId(), "reader-001");
-        webtoonService.followWebtoon(toon.getId(), "reader-002");
+        webtoonService.followWebtoon(toon.getId(), 101L);
+        webtoonService.followWebtoon(toon.getId(), 102L);
 
         // 저장된 객체 기준으로도 팔로워 수 확인
         Webtoon stored = webtoonRepo.findById(toon.getId()).orElseThrow();
         assertEquals(2, stored.getFollowerUserIds().size());
-        assertTrue(stored.getFollowerUserIds().contains("reader-001"));
-        assertTrue(stored.getFollowerUserIds().contains("reader-002"));
+        assertTrue(stored.getFollowerUserIds().contains(101L));
+        assertTrue(stored.getFollowerUserIds().contains(102L));
 
         // 7) 회차 2개 발행 (번호 자동 증가)
         Episode ep1 = webtoonService.publishEpisode(toon.getId(), "1화. 첫 손님", "내용1", 50, 100);
@@ -93,13 +93,13 @@ class WebtoonFlowTest {
         // 팔로워 2명 × 회차 2개 = 4개의 알림 메시지가 출력되어야 함
         String output = outputStreamCaptor.toString();
 
-        // "reader-001"에 대한 알림 2개 (1화, 2화)
-        assertTrue(output.contains("[알림] 사용자 reader-001 → 웹툰 '밤의 상점'에 새 회차가 추가되었습니다."),
-                "reader-001에 대한 알림이 출력되어야 합니다.");
+        // "101"에 대한 알림 2개 (1화, 2화)
+        assertTrue(output.contains("[알림] 사용자 101 → 웹툰 '밤의 상점'"),
+                "사용자 101에 대한 알림이 출력되어야 합니다.");
 
-        // "reader-002"에 대한 알림 2개 (1화, 2화)
-        assertTrue(output.contains("[알림] 사용자 reader-002 → 웹툰 '밤의 상점'에 새 회차가 추가되었습니다."),
-                "reader-002에 대한 알림이 출력되어야 합니다.");
+        // "102"에 대한 알림 2개 (1화, 2화)
+        assertTrue(output.contains("[알림] 사용자 102 → 웹툰 '밤의 상점'"),
+                "사용자 102에 대한 알림이 출력되어야 합니다.");
 
         // 총 4개의 알림 메시지가 출력되었는지 확인
         long notificationCount = output.lines()
@@ -119,7 +119,7 @@ class WebtoonFlowTest {
         UserRepository userRepo = new UserRepository();
         AuthService auth = new AuthService(userRepo);
         Author author = auth.registerAuthor(username, "pass1234", authorName, "소개글");
-        String authorId = String.valueOf(author.getId());
+        Long authorId = author.getId();
 
         EpisodeRepository episodeRepo = new InMemoryEpisodeRepository();
         WebtoonRepository webtoonRepo = new InMemoryWebtoonRepository();
@@ -129,7 +129,7 @@ class WebtoonFlowTest {
         Webtoon toon = webtoonService.createWebtoon("테스트 웹툰", authorId);
 
         // when: 회차가 없을 때
-        String latestBeforePublish = toon.getLatestEpisode();
+        Long latestBeforePublish = toon.getLatestEpisode();
 
         // then: null 반환
         assertNull(latestBeforePublish, "회차가 없을 때 null을 반환해야 합니다.");
@@ -140,7 +140,7 @@ class WebtoonFlowTest {
         Episode ep3 = webtoonService.publishEpisode(toon.getId(), "3화", "내용3", 50, 100);
 
         Webtoon updated = webtoonRepo.findById(toon.getId()).orElseThrow();
-        String latestEpisodeId = updated.getLatestEpisode();
+        Long latestEpisodeId = updated.getLatestEpisode();
 
         // then: 가장 최근에 추가된 회차 ID 반환
         assertNotNull(latestEpisodeId);

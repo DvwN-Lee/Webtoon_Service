@@ -112,8 +112,8 @@ import java.time.LocalDateTime;
 public class Episode {
 
     // 식별
-    private String id;          // UUID
-    private String webtoonId;   // 소속 작품 ID
+    private Long id;            // Repository에서 자동 생성
+    private Long webtoonId;     // 소속 작품 ID
 
     // 기본 정보
     private int number;         // 1..N (정렬 기준)
@@ -133,7 +133,7 @@ public class Episode {
     // ===== 생성자 =====
     public Episode() { }
 
-    public Episode(String id, String webtoonId, int number, String title,
+    public Episode(Long id, Long webtoonId, int number, String title,
                    String content, Integer rentPrice, Integer buyPrice) {
         this.id = id;
         this.webtoonId = webtoonId;
@@ -187,11 +187,11 @@ public class Episode {
     }
 
     // ===== Getter / Setter =====
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public String getWebtoonId() { return webtoonId; }
-    public void setWebtoonId(String webtoonId) { this.webtoonId = webtoonId; }
+    public Long getWebtoonId() { return webtoonId; }
+    public void setWebtoonId(Long webtoonId) { this.webtoonId = webtoonId; }
 
     public int getNumber() { return number; }
     public void setNumber(int number) { this.number = number; }

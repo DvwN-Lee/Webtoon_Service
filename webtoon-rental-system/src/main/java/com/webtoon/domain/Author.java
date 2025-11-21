@@ -94,7 +94,7 @@ public class Author extends User {
 
     // 작가의 모든 작품을 대상으로 총 팔로워 수를 계산^^
     public int getTotalFollowers() {
-        Set<String> allFollowerIds = new HashSet<>();
+        Set<Long> allFollowerIds = new HashSet<>();
         for (Webtoon webtoon : webtoons) {
             if (webtoon != null) {
                 allFollowerIds.addAll(webtoon.getFollowerUserIds());
@@ -104,7 +104,7 @@ public class Author extends User {
     }
 
     // 작가 연재 목록에서 특정 웹툰 제거 (웹툰 삭제 시 사용)
-    public void removeWebtoon(String webtoonId) {
+    public void removeWebtoon(Long webtoonId) {
         webtoons.removeIf(w -> w != null && webtoonId.equals(w.getId()));
     }
 
