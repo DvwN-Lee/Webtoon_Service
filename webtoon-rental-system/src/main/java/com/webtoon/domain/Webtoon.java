@@ -51,6 +51,17 @@ public class Webtoon implements Subject {
         return episodeIds.size();
     }
 
+    /**
+     * 최신 회차 ID 조회
+     * @return 최신 회차 ID (없으면 null)
+     */
+    public Long getLatestEpisode() {
+        if (episodeIds.isEmpty()) {
+            return null;
+        }
+        return episodeIds.get(episodeIds.size() - 1);
+    }
+
     public void increasePopularity(int delta) {
         this.popularity += delta;
     }
