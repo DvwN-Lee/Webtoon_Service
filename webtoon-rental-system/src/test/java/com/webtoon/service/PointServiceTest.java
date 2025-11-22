@@ -5,6 +5,7 @@ import com.webtoon.pattern.CreditCardPaymentStrategy;
 import com.webtoon.pattern.BankTransferPaymentStrategy;
 import com.webtoon.pattern.PaymentStrategy;
 import com.webtoon.repository.PaymentHistoryRepository;
+import com.webtoon.repository.ReaderRepository;
 import com.webtoon.domain.Reader;
 import com.webtoon.service.PointService;
 import com.webtoon.common.repository.InMemoryPaymentHistoryRepository;
@@ -21,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class PointServiceTest {
 
     private PaymentHistoryRepository paymentRepo;
+    private ReaderRepository readerRepo;
     private PointService pointService;
     private Reader reader;
     private Clock baseClock;
@@ -28,18 +30,21 @@ class PointServiceTest {
     @BeforeEach
     void setUp() {
         paymentRepo = new InMemoryPaymentHistoryRepository();
+        readerRepo = new ReaderRepository();
 
-        // PointService는 repo + clock 두 개 필요
+        // PointService는 repo + readerRepo + clock 세 개 필요
         baseClock = Clock.systemDefaultZone();
-        pointService = new PointService(paymentRepo, baseClock);
+        pointService = new PointService(paymentRepo, readerRepo, baseClock);
 
         // Reader 실제 생성자에 맞춰 생성
         reader = new Reader("reader1", "1234", "닉");
 
-        reader.setId(1L);   // 이거 반드시 넣어라
+        // ReaderRepository에 저장하여 ID 생성
+        reader = readerRepo.save(reader);
 
         // 기본 포인트가 1000이므로 → 0P에서 테스트를 하고 싶다면 아래처럼 조정
-        reader.setPoints(0);   // now: 0P
+        reader.setPoints(0);
+        readerRepo.update(reader);   // 포인트 변경사항 저장
     }
 
     @Test

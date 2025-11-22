@@ -46,6 +46,7 @@ public class Main {
         EpisodeService episodeService = new EpisodeService(episodeRepository);
         PointService pointService = new PointService(
             paymentHistoryRepository,
+            readerRepository,
             clock
         );
         AccessService accessService = new AccessService(
@@ -85,7 +86,8 @@ public class Main {
             rentalRepository,
             purchaseRepository,
             authorService,
-            statisticsService
+            statisticsService,
+            readerRepository
         );
         menuController.showStartMenu();
 

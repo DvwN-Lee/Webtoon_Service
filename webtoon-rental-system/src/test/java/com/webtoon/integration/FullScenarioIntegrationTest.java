@@ -69,7 +69,7 @@ class FullScenarioIntegrationTest {
         webtoonService = new WebtoonService(webtoonRepository, episodeRepository, notificationService, userRepository);
         episodeService = new EpisodeService(episodeRepository);
         readerService = new ReaderService(readerRepository, notificationService, rentalRepository, purchaseRepository);
-        pointService = new PointService(paymentHistoryRepository, clock);
+        pointService = new PointService(paymentHistoryRepository, readerRepository, clock);
         accessService = new AccessService(rentalRepository, purchaseRepository, clock);
 
         System.out.println("\n========================================");

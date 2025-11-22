@@ -9,8 +9,6 @@ import com.webtoon.domain.User;
 import com.webtoon.repository.*;
 import com.webtoon.service.*;
 
-import java.time.Clock;
-
 public class MenuController {
 
     private final AuthService authService;
@@ -36,7 +34,8 @@ public class MenuController {
                          RentalRepository rentalRepository,
                          PurchaseRepository purchaseRepository,
                          AuthorService authorService,
-                         StatisticsService statisticsService) {
+                         StatisticsService statisticsService,
+                         ReaderRepository readerRepository) {
         this.authService = authService;
         this.readerService = readerService;
         this.webtoonService = webtoonService;
@@ -50,7 +49,7 @@ public class MenuController {
         this.readerMenuController = new ReaderMenuController(
             readerService, webtoonService, episodeService,
             notificationService, pointService, accessService,
-            rentalRepository, purchaseRepository
+            rentalRepository, purchaseRepository, readerRepository
         );
         this.authorMenuController = new AuthorMenuController(
             authorService, webtoonService, episodeService, statisticsService

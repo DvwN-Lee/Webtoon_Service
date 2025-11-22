@@ -3,6 +3,7 @@ package com.webtoon.service;
 import com.webtoon.domain.PaymentHistory;
 import com.webtoon.pattern.PaymentStrategy;
 import com.webtoon.repository.PaymentHistoryRepository;
+import com.webtoon.repository.ReaderRepository;
 import com.webtoon.domain.Reader;
 
 import java.time.Clock;
@@ -20,17 +21,20 @@ public class PointService {
     private static final int WON_PER_POINT = 10;
 
     private final PaymentHistoryRepository paymentHistoryRepository;
+    private final ReaderRepository readerRepository;
     private final Clock clock;
 
     public PointService(PaymentHistoryRepository paymentHistoryRepository,
+                        ReaderRepository readerRepository,
                         Clock clock) {
         this.paymentHistoryRepository = paymentHistoryRepository;
+        this.readerRepository = readerRepository;
         this.clock = clock;
     }
 
     /**
      * 포인트 충전 (FR-PAYMENT-01~04)
-     * 1) 금액 검증 → 2) 결제전략 실행 → 3) 포인트 환산/적립 → 4) 이력 저장
+     * 1) 금액 검증 → 2) 결제전략 실행 → 3) 포인트 환산/적립 → 4) 이력 저장 → 5) Reader DB 저장
      */
     public boolean chargePoints(Reader reader, int amount, PaymentStrategy strategy) {
         // 1) 금액 검증
@@ -61,6 +65,9 @@ public class PointService {
         );
 
         paymentHistoryRepository.save(history);
+
+        // 5) Reader의 포인트 변경사항을 DB에 저장
+        readerRepository.update(reader);
 
         return true;
     }

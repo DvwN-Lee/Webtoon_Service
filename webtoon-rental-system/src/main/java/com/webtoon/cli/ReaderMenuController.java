@@ -21,6 +21,7 @@ public class ReaderMenuController {
     private final AccessService accessService;
     private final RentalRepository rentalRepository;
     private final PurchaseRepository purchaseRepository;
+    private final ReaderRepository readerRepository;
 
     public ReaderMenuController(ReaderService readerService,
                                 WebtoonService webtoonService,
@@ -29,7 +30,8 @@ public class ReaderMenuController {
                                 PointService pointService,
                                 AccessService accessService,
                                 RentalRepository rentalRepository,
-                                PurchaseRepository purchaseRepository) {
+                                PurchaseRepository purchaseRepository,
+                                ReaderRepository readerRepository) {
         this.readerService = readerService;
         this.webtoonService = webtoonService;
         this.episodeService = episodeService;
@@ -38,6 +40,7 @@ public class ReaderMenuController {
         this.accessService = accessService;
         this.rentalRepository = rentalRepository;
         this.purchaseRepository = purchaseRepository;
+        this.readerRepository = readerRepository;
     }
 
     public void showHomeScreen(Reader reader) {
@@ -195,6 +198,10 @@ public class ReaderMenuController {
 
     private void showWebtoonDetail(Reader reader, Webtoon webtoon) {
         while (true) {
+            // DB에서 최신 팔로우 상태 확인
+            Reader latestReader = readerRepository.findById(reader.getId())
+                .orElseThrow(() -> new ValidationException("존재하지 않는 독자입니다."));
+
             System.out.println();
             InputUtil.printHeader("웹툰 상세 정보");
             System.out.println("제목: " + webtoon.getTitle());
@@ -204,7 +211,7 @@ public class ReaderMenuController {
             System.out.println("총 회차 수: " + webtoon.getEpisodeIds().size() + "화");
             System.out.println("인기도: " + webtoon.getPopularity());
 
-            boolean isFollowing = reader.getFollowingWebtoonIds().contains(webtoon.getId());
+            boolean isFollowing = latestReader.getFollowingWebtoonIds().contains(webtoon.getId());
             System.out.println("팔로우 상태: " + (isFollowing ? "팔로우 중" : "미팔로우"));
 
             System.out.println();
@@ -381,7 +388,11 @@ public class ReaderMenuController {
     }
 
     private void showFollowingWebtoons(Reader reader) {
-        List<Long> followingIds = reader.getFollowingWebtoonIds();
+        // DB에서 최신 Reader 데이터를 조회하여 팔로우 목록을 가져옴
+        Reader latestReader = readerRepository.findById(reader.getId())
+            .orElseThrow(() -> new ValidationException("존재하지 않는 독자입니다."));
+
+        List<Long> followingIds = latestReader.getFollowingWebtoonIds();
 
         if (followingIds.isEmpty()) {
             System.out.println("\n팔로우한 웹툰이 없습니다.");
