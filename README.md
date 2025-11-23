@@ -42,22 +42,27 @@
 
 #### VS Code
 
-1. `.vscode/launch.json` 파일 생성 또는 수정:
-   ```json
-   {
-     "version": "0.2.0",
-     "configurations": [
-       {
-         "type": "java",
-         "name": "Main",
-         "request": "launch",
-         "mainClass": "com.webtoon.cli.Main",
-         "vmArgs": "-Dfile.encoding=UTF-8"
-       }
-     ]
-   }
-   ```
-2. F5로 실행
+이 프로젝트는 이미 VSCode 설정 파일(`.vscode/`)이 포함되어 있습니다.
+
+1. **필수 확장 설치**:
+   - Extension Pack for Java (Microsoft)
+   - Gradle for Java (Microsoft)
+
+2. **실행 방법**:
+   - `webtoon-rental-system/src/main/java/com/webtoon/cli/Main.java` 파일 열기
+   - 방법 1: F5 키 (디버그 실행)
+   - 방법 2: Ctrl+F5 (일반 실행)
+   - 방법 3: Run and Debug 패널에서 "Main" 설정 선택 후 실행
+
+3. **Windows 사용자 추가 설정** (한글 깨짐 방지):
+   - VSCode 설정(Ctrl+,) 열기
+   - `Files: Encoding` 검색 → `utf8` 확인
+   - 터미널에서 실행 시: 통합 터미널 설정에서 Code Page 65001(UTF-8) 사용
+
+4. **설정 파일 위치**:
+   - `.vscode/launch.json`: 실행 구성 (VM 옵션 포함)
+   - `.vscode/settings.json`: 프로젝트 설정 (인코딩 등)
+   - `.vscode/tasks.json`: 빌드/실행 태스크
 
 ### 터미널에서 실행
 
@@ -76,8 +81,14 @@ gradlew.bat run
 
 하지만 Windows에서 한글이 여전히 깨지는 경우:
 
-1. **IDE 실행 시**: 위의 VM options 설정 확인
-2. **터미널 실행 시**: 터미널에서 `chcp 65001` 실행 후 `gradlew.bat run` 실행
+1. **IntelliJ IDEA**: 위의 VM options 설정 확인
+2. **VSCode**:
+   - `.vscode/launch.json`에 이미 UTF-8 설정이 포함되어 있습니다
+   - 그래도 문제가 있다면: VSCode 통합 터미널에서 `chcp 65001` 실행
+   - 또는: 외부 터미널(Windows Terminal 권장) 사용
+3. **터미널 직접 실행**:
+   - Windows: `chcp 65001` 실행 후 `gradlew.bat run`
+   - Mac/Linux: 문제없음 (기본적으로 UTF-8 사용)
 
 ## 빌드
 

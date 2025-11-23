@@ -16,7 +16,7 @@ out/
 bin/
 
 # VS Code
-.vscode/
+# .vscode/ - 프로젝트 공통 설정(인코딩 등)은 커밋에 포함
 
 # MacOS
 .DS_Store

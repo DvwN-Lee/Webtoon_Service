@@ -1,0 +1,25 @@
+{
+  // 파일 인코딩 설정
+  "files.encoding": "utf8",
+  "files.autoGuessEncoding": false,
+
+  // Java 확장 설정
+  "java.configuration.runtimes": [],
+
+  // Java 컴파일 및 실행 시 인코딩 설정
+  "java.jdt.ls.vmargs": "-Dfile.encoding=UTF-8",
+
+  // Gradle 관련 설정
+  "java.import.gradle.java.home": null,
+
+  // 터미널 인코딩 설정
+  "terminal.integrated.env.windows": {
+    "JAVA_TOOL_OPTIONS": "-Dfile.encoding=UTF-8"
+  },
+  "terminal.integrated.env.osx": {
+    "JAVA_TOOL_OPTIONS": "-Dfile.encoding=UTF-8"
+  },
+  "terminal.integrated.env.linux": {
+    "JAVA_TOOL_OPTIONS": "-Dfile.encoding=UTF-8"
+  }
+}
