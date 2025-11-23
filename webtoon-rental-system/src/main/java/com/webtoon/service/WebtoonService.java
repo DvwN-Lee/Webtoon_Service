@@ -113,25 +113,45 @@ public class WebtoonService {
     private final EpisodeRepository episodeRepository;
     private final NotificationService notificationService;
     private final UserRepository userRepository;
+    private final StatisticsService statisticsService;
 
     public WebtoonService(WebtoonRepository webtoonRepository,
                           EpisodeRepository episodeRepository,
-                          NotificationService notificationService) {
+                          NotificationService notificationService,
+                          StatisticsService statisticsService) {
         this.webtoonRepository = webtoonRepository;
         this.episodeRepository = episodeRepository;
         this.notificationService = notificationService;
         this.userRepository = new UserRepository();
+        this.statisticsService = statisticsService;
     }
 
-    // 테스트용 DI 생성자
+    // 테스트용 DI 생성자 (모든 의존성 주입)
     public WebtoonService(WebtoonRepository webtoonRepository,
                           EpisodeRepository episodeRepository,
                           NotificationService notificationService,
-                          UserRepository userRepository) {
+                          UserRepository userRepository,
+                          StatisticsService statisticsService) {
         this.webtoonRepository = webtoonRepository;
         this.episodeRepository = episodeRepository;
         this.notificationService = notificationService;
         this.userRepository = userRepository;
+        this.statisticsService = statisticsService;
+    }
+
+    // 기존 테스트 호환용 생성자 (StatisticsService 없이)
+    public WebtoonService(WebtoonRepository webtoonRepository,
+                          EpisodeRepository episodeRepository,
+                          NotificationService notificationService,
+                          UserRepository userRepository) {
+        this(webtoonRepository, episodeRepository, notificationService, userRepository, null);
+    }
+
+    // 기존 호환용 생성자 (StatisticsService 없이)
+    public WebtoonService(WebtoonRepository webtoonRepository,
+                          EpisodeRepository episodeRepository,
+                          NotificationService notificationService) {
+        this(webtoonRepository, episodeRepository, notificationService, new UserRepository(), null);
     }
 
     // ====== 조회/검색/정렬 기능 ======
@@ -218,9 +238,6 @@ public class WebtoonService {
         });
 
         webtoonRepository.save(webtoon); // 변경 반영
-
-        System.out.println("팔로우 직후 followerUserIds: " + webtoon.getFollowerUserIds());
-
     }
 
     /**
@@ -250,6 +267,11 @@ public class WebtoonService {
 
         episodeRepository.save(episode);
 
+        // 통계 서비스에 회차 생성 반영
+        if (statisticsService != null) {
+            statisticsService.onEpisodeCreated(webtoonId);
+        }
+
         // 웹툰에 회차 id 연결
         webtoon.addEpisode(episode.getId());
         webtoonRepository.save(webtoon);
@@ -269,8 +291,6 @@ public class WebtoonService {
 
         // 변경사항 저장 (JSON 반영)
         webtoonRepository.save(webtoon);
-
-        System.out.println("언팔로우 직후 followerUserIds: " + webtoon.getFollowerUserIds());
     }
 
 

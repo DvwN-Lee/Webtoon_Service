@@ -71,9 +71,16 @@ import java.util.List;
 public class EpisodeService {
 
     private final EpisodeRepository episodeRepository;
+    private final StatisticsService statisticsService;
 
-    public EpisodeService(EpisodeRepository episodeRepository) {
+    public EpisodeService(EpisodeRepository episodeRepository, StatisticsService statisticsService) {
         this.episodeRepository = episodeRepository;
+        this.statisticsService = statisticsService;
+    }
+
+    // 테스트 호환성을 위한 생성자 (StatisticsService 없이도 동작)
+    public EpisodeService(EpisodeRepository episodeRepository) {
+        this(episodeRepository, null);
     }
 
     /** 회차 단건 조회 */
@@ -120,6 +127,12 @@ public class EpisodeService {
         // 예시: 상세 조회 시 조회수 1 증가
         episode.incrementViewCount();
         episodeRepository.save(episode);
+
+        // 통계 서비스에 조회수 증가 반영
+        if (statisticsService != null) {
+            statisticsService.onViewIncreased(episode.getWebtoonId());
+        }
+
         return episode;
     }
 

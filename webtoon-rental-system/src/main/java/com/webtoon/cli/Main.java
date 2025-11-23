@@ -31,6 +31,10 @@ public class Main {
 
         AuthService authService = new AuthService(userRepository, readerRepository);
         NotificationService notificationService = new NotificationService(notificationRepository);
+        StatisticsService statisticsService = new StatisticsService(
+            statisticsRepository,
+            webtoonRepository
+        );
         ReaderService readerService = new ReaderService(
             readerRepository,
             notificationService,
@@ -41,9 +45,13 @@ public class Main {
             webtoonRepository,
             episodeRepository,
             notificationService,
-            userRepository
+            userRepository,
+            statisticsService
         );
-        EpisodeService episodeService = new EpisodeService(episodeRepository);
+        EpisodeService episodeService = new EpisodeService(
+            episodeRepository,
+            statisticsService
+        );
         PointService pointService = new PointService(
             paymentHistoryRepository,
             readerRepository,
@@ -53,10 +61,6 @@ public class Main {
             rentalRepository,
             purchaseRepository,
             clock
-        );
-        StatisticsService statisticsService = new StatisticsService(
-            statisticsRepository,
-            webtoonRepository
         );
         AuthorService authorService = new AuthorService(
             userRepository,
