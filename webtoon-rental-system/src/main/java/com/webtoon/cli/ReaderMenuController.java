@@ -299,18 +299,24 @@ public class ReaderMenuController {
         System.out.println("조회수: " + episode.getViewCount());
 
         if (hasAccess) {
+            // 접근 가능한 경우 조회수 증가 (내용을 실제로 볼 때만)
+            episode = episodeService.getEpisodeDetailForUser(episode, reader);
+
+            // 조회수 증가 후 업데이트된 조회수 표시
+            System.out.println("\n[조회수가 증가되었습니다: " + episode.getViewCount() + "회]");
+
             // 대여 또는 구매 상태 표시
             Purchase purchase = purchaseRepository.findByReaderIdAndEpisodeId(reader.getId(), episode.getId());
             Rental rental = rentalRepository.findActiveRentalByReaderIdAndEpisodeId(reader.getId(), episode.getId());
 
             if (purchase != null) {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-                System.out.println("\n[소장 상태] 영구 소장 (구매일: " + purchase.getPurchasedAt().format(formatter) + ")");
+                System.out.println("[소장 상태] 영구 소장 (구매일: " + purchase.getPurchasedAt().format(formatter) + ")");
             } else if (rental != null) {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
                 long remainingMinutes = rental.remainingSeconds(java.time.Clock.systemDefaultZone()) / 60;
                 long remainingSeconds = rental.remainingSeconds(java.time.Clock.systemDefaultZone()) % 60;
-                System.out.println("\n[대여 상태] 대여 중");
+                System.out.println("[대여 상태] 대여 중");
                 System.out.println("  - 대여일: " + rental.getRentedAt().format(formatter));
                 System.out.println("  - 만료일: " + rental.getExpiresAt().format(formatter));
                 System.out.println("  - 남은 시간: " + remainingMinutes + "분 " + remainingSeconds + "초");
