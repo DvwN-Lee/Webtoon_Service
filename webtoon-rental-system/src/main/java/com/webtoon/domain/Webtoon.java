@@ -99,6 +99,8 @@ public class Webtoon implements Subject {
         return followerUserIds;
     }
 
+
+
     @Override
     public void notifyObservers() {
         if (id == null) {

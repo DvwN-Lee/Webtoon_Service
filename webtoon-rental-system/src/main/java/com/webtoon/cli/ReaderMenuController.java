@@ -230,11 +230,26 @@ public class ReaderMenuController {
                     if (isFollowing) {
                         readerService.unfollowWebtoon(reader.getId(), webtoon.getId());
                         reader.unfollowWebtoon(webtoon.getId());
+
+                        webtoonService.unfollowWebtoon(webtoon.getId(), reader.getId()); // 추가!
+
+                        //readerService.unfollowWebtoon(reader.getId(), webtoon.getId());
+                        //reader.unfollowWebtoon(webtoon.getId());
                         System.out.println("\n언팔로우하였습니다.");
                     } else {
+                        // Reader에 팔로우 정보 저장
                         readerService.followWebtoon(reader.getId(), webtoon.getId());
                         reader.followWebtoon(webtoon.getId());
+
+                        // Webtoon에도 팔로우 정보 저장 + observer 등록 + JSON save
+                        webtoonService.followWebtoon(webtoon.getId(), reader.getId());
+
                         System.out.println("\n팔로우하였습니다.");
+
+                        //옵저버 문제 해결을 위한 원본 코드 주석 처리
+                        //readerService.followWebtoon(reader.getId(), webtoon.getId());
+                        //reader.followWebtoon(webtoon.getId());
+                        //System.out.println("\n팔로우하였습니다.");
                     }
                     InputUtil.pause();
                     break;

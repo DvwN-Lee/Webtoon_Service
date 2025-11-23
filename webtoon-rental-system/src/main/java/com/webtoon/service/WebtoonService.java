@@ -218,6 +218,9 @@ public class WebtoonService {
         });
 
         webtoonRepository.save(webtoon); // 변경 반영
+
+        System.out.println("팔로우 직후 followerUserIds: " + webtoon.getFollowerUserIds());
+
     }
 
     /**
@@ -256,6 +259,20 @@ public class WebtoonService {
 
         return episode;
     }
+
+    public void unfollowWebtoon(Long webtoonId, Long userId) {
+        Webtoon webtoon = webtoonRepository.findById(webtoonId)
+                .orElseThrow(() -> new IllegalArgumentException("웹툰을 찾을 수 없습니다: " + webtoonId));
+
+        // Webtoon의 follower 목록에서 제거
+        webtoon.detach(userId);
+
+        // 변경사항 저장 (JSON 반영)
+        webtoonRepository.save(webtoon);
+
+        System.out.println("언팔로우 직후 followerUserIds: " + webtoon.getFollowerUserIds());
+    }
+
 
     /**
      * 팔로워들에게 알림 전송
