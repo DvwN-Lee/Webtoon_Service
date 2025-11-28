@@ -48,11 +48,15 @@ public class PointService {
             return false;
         }
 
-        // 3) 포인트 환산 및 적립
-        int points = amount / WON_PER_POINT;
-        reader.addPoints(points);
+        // 3) 항상 최신 Reader를 다시 조회
+        Reader latestReader = readerRepository.findById(reader.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Reader not found"));
 
-        // 4) 결제(충전) 내역 저장
+        // 4) 포인트 환산 및 적립
+        int points = amount / WON_PER_POINT;
+        latestReader.addPoints(points);
+
+        // 5) 결제(충전) 내역 저장
         LocalDateTime now = LocalDateTime.now(clock);
 
         PaymentHistory history = new PaymentHistory(
@@ -66,8 +70,12 @@ public class PointService {
 
         paymentHistoryRepository.save(history);
 
-        // 5) Reader의 포인트 변경사항을 DB에 저장
-        readerRepository.update(reader);
+        // 7) Reader의 포인트 변경사항을 DB에 저장
+        // 최신 Reader를 저장해야 팔로우 데이터가 덮어씌워지지 않음
+        readerRepository.update(latestReader);
+
+        //  파라미터로 받은 reader도 최신값 동기화
+        reader.setPoints(latestReader.getPoints());
 
         return true;
     }

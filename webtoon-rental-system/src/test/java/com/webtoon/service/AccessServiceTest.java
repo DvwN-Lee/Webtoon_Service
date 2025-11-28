@@ -5,8 +5,10 @@ import com.webtoon.domain.Episode;
 import com.webtoon.pattern.AccessStrategy;
 import com.webtoon.pattern.RentalAccessStrategy;
 import com.webtoon.pattern.PurchaseAccessStrategy;
+import com.webtoon.repository.ReaderRepository;
 import com.webtoon.common.repository.InMemoryRentalRepository;
 import com.webtoon.common.repository.InMemoryPurchaseRepository;
+import com.webtoon.common.repository.InMemoryReaderRepository;
 
 import org.junit.jupiter.api.*;
 
@@ -21,6 +23,7 @@ class AccessServiceTest {
 
     private InMemoryRentalRepository rentalRepo;
     private InMemoryPurchaseRepository purchaseRepo;
+    private ReaderRepository readerRepo;
     private AccessService accessService;
     private Reader reader;
     private Episode ep;
@@ -30,6 +33,7 @@ class AccessServiceTest {
     void setUp() {
         rentalRepo = new InMemoryRentalRepository();
         purchaseRepo = new InMemoryPurchaseRepository();
+        readerRepo = new InMemoryReaderRepository();
 
         baseClock = Clock.fixed(
                 LocalDateTime.of(2025,10,3,14,0)
@@ -37,15 +41,18 @@ class AccessServiceTest {
                 ZoneId.systemDefault()
         );
 
-        accessService = new AccessService(rentalRepo, purchaseRepo, baseClock);
+        accessService = new AccessService(rentalRepo, purchaseRepo, readerRepo, baseClock);
 
+        //  Reader 먼저 생성 → ID 설정 → Repo에 저장 (이 순서가 매우 중요!)
         reader = new Reader("reader1", "1234", "독자A");
-
-        ep = new Episode(1L, 1L, 15, "최종 결전 (5)",
-                "내용...", 50, 100);// 반드시 마지막에!
         reader.setId(1L);
+        readerRepo.save(reader);
+
+        // Episode 생성
+        ep = new Episode(1L, 1L, 15, "최종 결전 (5)", "내용...", 50, 100);
         ep.setId(1L);
     }
+
     @Test
     @DisplayName("대여 시 포인트 50P 차감되고 접근 가능해야 한다")
     void rent_success_deductsPoints_and_isAccessible() {
@@ -65,7 +72,7 @@ class AccessServiceTest {
         accessService.grantAccess(reader, ep, rental);
 
         Clock after11 = Clock.offset(baseClock, Duration.ofMinutes(11));
-        AccessService expired = new AccessService(rentalRepo, purchaseRepo, after11);
+        AccessService expired = new AccessService(rentalRepo, purchaseRepo,readerRepo, after11);
 
         assertFalse(expired.canAccess(reader, ep));
     }

@@ -8,6 +8,7 @@ import com.webtoon.pattern.AccessStrategy;
 import com.webtoon.pattern.PurchaseAccessStrategy;
 import com.webtoon.repository.RentalRepository;
 import com.webtoon.repository.PurchaseRepository;
+import com.webtoon.repository.ReaderRepository;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ public class AccessService {
 
     private final RentalRepository rentalRepository;
     private final PurchaseRepository purchaseRepository;
+    private final ReaderRepository readerRepository;   //  추가 필요!
     private final Clock clock;
 
     /**
@@ -30,9 +32,11 @@ public class AccessService {
      */
     public AccessService(RentalRepository rentalRepository,
                          PurchaseRepository purchaseRepository,
+                         ReaderRepository readerRepository,
                          Clock clock) {
         this.rentalRepository = rentalRepository;
         this.purchaseRepository = purchaseRepository;
+        this.readerRepository = readerRepository;
         this.clock = clock;
     }
 
@@ -51,6 +55,10 @@ public class AccessService {
      *    - 그 외에는 전략에 위임(일반 구매 – 전액 차감)
      */
     public boolean grantAccess(Reader reader, Episode episode, AccessStrategy strategy) {
+
+        //  항상 최신 Reader로 교체 (포인트 꼬임 해결 핵심)
+        reader = readerRepository.findById(reader.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Reader not found"));
 
         Long readerId = reader.getId();
         Long epId = episode.getId();
@@ -97,7 +105,11 @@ public class AccessService {
                         LocalDateTime.now(clock)
                 );
                 purchaseRepository.save(purchase);
+
+                //  Reader 저장
+                readerRepository.update(reader);
                 return true;
+
             }
             // ※ 여기까지 왔다면: 아직 대여도, 구매도 안 한 상태의 "일반 첫 구매"
             //    → 아래의 strategy.execute(...) 로 진행
@@ -109,11 +121,19 @@ public class AccessService {
 
         if (result instanceof Rental rental) {
             rentalRepository.save(rental);
+
+            //  Reader 저장
+            readerRepository.update(reader);
+
             return true;
         }
 
         if (result instanceof Purchase purchase) {
             purchaseRepository.save(purchase);
+
+            //  Reader 저장
+            readerRepository.update(reader);
+
             return true;
         }
 

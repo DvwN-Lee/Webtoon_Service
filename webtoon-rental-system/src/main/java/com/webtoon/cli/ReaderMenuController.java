@@ -255,6 +255,11 @@ public class ReaderMenuController {
     }
 
     private void showEpisodeList(Reader reader, Webtoon webtoon) {
+
+        // 항상 최신 Reader 사용
+        Reader latestReader = readerRepository.findById(reader.getId())
+                .orElseThrow(() -> new ValidationException("존재하지 않는 독자입니다."));
+
         List<Episode> episodes = episodeService.findByWebtoonId(webtoon.getId());
 
         if (episodes.isEmpty()) {
@@ -283,15 +288,23 @@ public class ReaderMenuController {
             }
 
             Episode selectedEpisode = episodes.get(episodeNum - 1);
-            showEpisodeDetail(reader, selectedEpisode);
+
+            // 최신 Reader를 넘겨야 포인트/팔로우가 정확함
+            showEpisodeDetail(latestReader, selectedEpisode);
         }
     }
 
+
     private void showEpisodeDetail(Reader reader, Episode episode) {
+
+        // 항상 최신 Reader 조회
+        Reader latestReader = readerRepository.findById(reader.getId())
+                .orElseThrow(() -> new ValidationException("존재하지 않는 독자입니다."));
+
         System.out.println();
         InputUtil.printHeader("회차 상세");
 
-        boolean hasAccess = accessService.canAccess(reader, episode);
+        boolean hasAccess = accessService.canAccess(latestReader, episode);
 
         System.out.println("제목: " + episode.getTitle());
         System.out.println("대여가: " + episode.getRentPrice() + "P");
@@ -299,15 +312,14 @@ public class ReaderMenuController {
         System.out.println("조회수: " + episode.getViewCount());
 
         if (hasAccess) {
-            // 접근 가능한 경우 조회수 증가 (내용을 실제로 볼 때만)
-            episode = episodeService.getEpisodeDetailForUser(episode, reader);
+            // 접근 가능한 경우 조회수 증가
+            episode = episodeService.getEpisodeDetailForUser(episode, latestReader);
 
-            // 조회수 증가 후 업데이트된 조회수 표시
             System.out.println("\n[조회수가 증가되었습니다: " + episode.getViewCount() + "회]");
 
-            // 대여 또는 구매 상태 표시
-            Purchase purchase = purchaseRepository.findByReaderIdAndEpisodeId(reader.getId(), episode.getId());
-            Rental rental = rentalRepository.findActiveRentalByReaderIdAndEpisodeId(reader.getId(), episode.getId());
+            // 구매/대여 상태 표시
+            Purchase purchase = purchaseRepository.findByReaderIdAndEpisodeId(latestReader.getId(), episode.getId());
+            Rental rental = rentalRepository.findActiveRentalByReaderIdAndEpisodeId(latestReader.getId(), episode.getId());
 
             if (purchase != null) {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -325,9 +337,9 @@ public class ReaderMenuController {
             System.out.println("\n=== 회차 내용 ===");
             System.out.println(episode.getContent());
             System.out.println("=================");
+
         } else {
-            System.out.println("\n이 회차를 보려면 대여 또는 구매가 필요합니다.");
-            System.out.println();
+            System.out.println("\n이 회차를 보려면 대여 또는 구매가 필요합니다.\n");
             System.out.println("1. 대여하기 (" + episode.getRentPrice() + "P, 10분간 이용)");
             System.out.println("2. 구매하기 (" + episode.getBuyPrice() + "P, 영구 소장)");
             System.out.println("0. 뒤로가기");
@@ -339,29 +351,40 @@ public class ReaderMenuController {
                 boolean success = false;
                 switch (choice) {
                     case 1:
-                        success = accessService.grantAccess(reader, episode, new RentalAccessStrategy(rentalRepository));
+                        success = accessService.grantAccess(latestReader, episode,
+                                new RentalAccessStrategy(rentalRepository));
+
                         if (success) {
+                            // DB에 반영된 최신 Reader 다시 읽기
+                            latestReader = readerRepository.findById(latestReader.getId()).get();
+
                             System.out.println("\n대여가 완료되었습니다!");
-                            System.out.println("남은 포인트: " + reader.getPoints() + "P");
+                            System.out.println("남은 포인트: " + latestReader.getPoints() + "P");
                             InputUtil.pause();
-                            showEpisodeDetail(reader, episode); // 재조회
+                            showEpisodeDetail(latestReader, episode);
                         } else {
                             System.out.println("\n[오류] 포인트가 부족합니다.");
                             InputUtil.pause();
                         }
                         return;
+
                     case 2:
-                        success = accessService.grantAccess(reader, episode, new PurchaseAccessStrategy(purchaseRepository));
+                        success = accessService.grantAccess(latestReader, episode,
+                                new PurchaseAccessStrategy(purchaseRepository));
+
                         if (success) {
+                            latestReader = readerRepository.findById(latestReader.getId()).get();
+
                             System.out.println("\n구매가 완료되었습니다!");
-                            System.out.println("남은 포인트: " + reader.getPoints() + "P");
+                            System.out.println("남은 포인트: " + latestReader.getPoints() + "P");
                             InputUtil.pause();
-                            showEpisodeDetail(reader, episode); // 재조회
+                            showEpisodeDetail(latestReader, episode);
                         } else {
                             System.out.println("\n[오류] 포인트가 부족합니다.");
                             InputUtil.pause();
                         }
                         return;
+
                     case 0:
                         return;
                 }
@@ -533,9 +556,14 @@ public class ReaderMenuController {
     }
 
     private void chargePoints(Reader reader) {
+
+        // 1) 항상 최신 Reader를 DB에서 다시 불러오기
+        Reader latestReader = readerRepository.findById(reader.getId())
+                .orElseThrow(() -> new ValidationException("존재하지 않는 독자입니다."));
+
         System.out.println();
         InputUtil.printHeader("포인트 충전");
-        System.out.println("현재 포인트: " + reader.getPoints() + "P");
+        System.out.println("현재 포인트: " + latestReader.getPoints() + "P");
         System.out.println();
         System.out.println("1. 신용카드 (10,000원 → 1,000P)");
         System.out.println("2. 계좌이체 (5,000원 → 500P)");
@@ -546,33 +574,41 @@ public class ReaderMenuController {
 
         try {
             boolean success = false;
+
             switch (choice) {
                 case 1:
-                    success = pointService.chargePoints(reader, 10000, new CreditCardPaymentStrategy());
+                    success = pointService.chargePoints(latestReader, 10000, new CreditCardPaymentStrategy());
                     if (success) {
                         System.out.println("\n신용카드로 10,000원 결제 완료!");
                         System.out.println("1,000P가 충전되었습니다.");
-                        System.out.println("현재 포인트: " + reader.getPoints() + "P");
                     }
                     break;
+
                 case 2:
-                    success = pointService.chargePoints(reader, 5000, new BankTransferPaymentStrategy());
+                    success = pointService.chargePoints(latestReader, 5000, new BankTransferPaymentStrategy());
                     if (success) {
                         System.out.println("\n계좌이체로 5,000원 결제 완료!");
                         System.out.println("500P가 충전되었습니다.");
-                        System.out.println("현재 포인트: " + reader.getPoints() + "P");
                     }
                     break;
+
                 case 0:
                     return;
             }
 
             if (success) {
+                // 2) 충전 후에도 최신 Reader를 다시 읽어서 출력
+                Reader updatedReader = readerRepository.findById(reader.getId())
+                        .orElseThrow(() -> new ValidationException("존재하지 않는 독자입니다."));
+
+                System.out.println("현재 포인트: " + updatedReader.getPoints() + "P");
                 InputUtil.pause();
             }
+
         } catch (ValidationException e) {
             System.out.println("\n[오류] " + e.getMessage());
             InputUtil.pause();
         }
     }
+
 }

@@ -114,7 +114,7 @@ public class AuthService {
      * @throws ValidationException 로그인 실패 시
      */
     public User login(String userType, String username, String password) {
-        // 1. 사용자 조회
+        // 1. UserRepository에서 사용자 조회
         User user = userRepository.findByUsername(username);
 
         if (user == null) {
@@ -131,12 +131,19 @@ public class AuthService {
             throw new ValidationException("비밀번호가 일치하지 않습니다.");
         }
 
-        // 4. 세션 설정
+        // 4. Reader일 경우 최신 Reader 데이터로 교체
+        if (user instanceof Reader) {
+            user = readerRepository.findById(user.getId())
+                    .orElseThrow(() -> new ValidationException("Reader 정보가 존재하지 않습니다."));
+        }
+
+        // 5. 세션 저장
         this.currentUser = user;
 
         System.out.println("✅ 로그인 성공: " + user.getDisplayName() + "님 환영합니다!");
         return user;
     }
+
 
     /**
      * FR-ACCOUNT-04: 로그아웃

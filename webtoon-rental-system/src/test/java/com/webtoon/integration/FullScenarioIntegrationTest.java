@@ -70,7 +70,7 @@ class FullScenarioIntegrationTest {
         episodeService = new EpisodeService(episodeRepository);
         readerService = new ReaderService(readerRepository, notificationService, rentalRepository, purchaseRepository);
         pointService = new PointService(paymentHistoryRepository, readerRepository, clock);
-        accessService = new AccessService(rentalRepository, purchaseRepository, clock);
+        accessService = new AccessService(rentalRepository, purchaseRepository,  readerRepository, clock);
 
         System.out.println("\n========================================");
         System.out.println("  5분 데모 시나리오 테스트 시작");
@@ -373,6 +373,7 @@ class FullScenarioIntegrationTest {
 
         // 새로운 독자 생성
         Reader reader2 = authService.registerReader("reader2", "1234", "독자B");
+        readerRepository.save(reader2);   //  반드시 저장해야 최신 DB 기반 로직이 정상 동작
         System.out.println("✓ 새 독자 생성: " + reader2.getDisplayName());
         System.out.println("  - 초기 포인트: " + reader2.getPoints() + "P");
 
@@ -386,6 +387,10 @@ class FullScenarioIntegrationTest {
             new com.webtoon.pattern.RentalAccessStrategy(rentalRepository)
         );
         assertTrue(rentSuccess);
+
+        //  대여 후 Reader 최신 값 다시 로드
+        reader2 = readerRepository.findById(reader2.getId()).orElseThrow();
+
         System.out.println("✓ 15화 대여 완료 (50P 차감)");
         System.out.println("  - 남은 포인트: " + reader2.getPoints() + "P");
 
@@ -397,6 +402,10 @@ class FullScenarioIntegrationTest {
             new com.webtoon.pattern.PurchaseAccessStrategy(purchaseRepository)
         );
         assertTrue(purchaseSuccess);
+
+        //  구매 후 다시 최신 Reader 로드
+        reader2 = readerRepository.findById(reader2.getId()).orElseThrow();
+
         System.out.println("✓ 구매로 전환 완료 (차액 50P 차감)");
         System.out.println("  - 남은 포인트: " + reader2.getPoints() + "P");
         assertEquals(pointsBeforeConversion - 50, reader2.getPoints());

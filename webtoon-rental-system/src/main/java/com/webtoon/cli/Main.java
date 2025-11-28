@@ -59,7 +59,7 @@ public class Main {
         );
         AccessService accessService = new AccessService(
             rentalRepository,
-            purchaseRepository,
+            purchaseRepository, readerRepository,   // 반드시 추가해야 함!
             clock
         );
         AuthorService authorService = new AuthorService(
