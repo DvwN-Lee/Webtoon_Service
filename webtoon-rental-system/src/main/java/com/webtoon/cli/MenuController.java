@@ -49,7 +49,7 @@ public class MenuController {
         this.readerMenuController = new ReaderMenuController(
             readerService, webtoonService, episodeService,
             notificationService, pointService, accessService,
-            rentalRepository, purchaseRepository, readerRepository
+            rentalRepository, purchaseRepository, readerRepository, statisticsService
         );
         this.authorMenuController = new AuthorMenuController(
             authorService, webtoonService, episodeService, statisticsService

@@ -83,15 +83,28 @@ public class AuthorMenuController {
 
         // 통계 정보 표시
         AuthorStats stats = statisticsService.getAuthorStats(author);
+
+        // 🔸 이 작가의 모든 작품을 가져와서 회차 수 합산
+        List<Webtoon> webtoons = authorService.getHomeScreen(author.getId());
+        int totalEpisodeCount = 0;
+        for (Webtoon w : webtoons) {
+            // 통계 서비스로 회차 수 가져오거나
+            // totalEpisodeCount += statisticsService.getEpisodeCount(w.getId());
+
+            // 또는 도메인에 이미 회차 id 리스트가 있으면 이걸 사용해도 됨
+            totalEpisodeCount += w.getEpisodeIds().size();
+        }
+
         System.out.println();
         System.out.println("[통계]");
         System.out.println("  연재 작품 수: " + stats.getWebtoonCount() + "개");
-        System.out.println("  총 회차 수: " + stats.getTotalEpisodeCount() + "화");
+        System.out.println("  총 회차 수: " + totalEpisodeCount + "화");
         System.out.println("  총 조회수: " + stats.getTotalViews() + "회");
 
         InputUtil.printSeparator();
         InputUtil.pause();
     }
+
 
     private void manageWebtoons(Author author) {
         while (true) {
@@ -114,8 +127,11 @@ public class AuthorMenuController {
 
             for (int i = 0; i < webtoons.size(); i++) {
                 Webtoon w = webtoons.get(i);
+                long totalViews = statisticsService.getTotalViews(w.getId()); // ★ 추가된 부분
                 System.out.println((i + 1) + ". " + w.getTitle());
-                System.out.println("   상태: " + w.getStatus() + " | 인기도: " + w.getPopularity() + " | 회차: " + w.getEpisodeIds().size() + "화");
+                System.out.println("   상태: " + w.getStatus()
+                        + " | 회차: " + w.getEpisodeIds().size() + "화"
+                        + " | 조회수: " + totalViews + "회 조회");
             }
 
             System.out.println();
@@ -142,7 +158,6 @@ public class AuthorMenuController {
             System.out.println("장르: " + String.join(", ", webtoon.getGenres()));
             System.out.println("상태: " + webtoon.getStatus());
             System.out.println("줄거리: " + webtoon.getSummary());
-            System.out.println("인기도: " + webtoon.getPopularity());
             System.out.println("팔로워: " + webtoon.getFollowerUserIds().size() + "명");
             System.out.println("회차 수: " + webtoon.getEpisodeIds().size() + "화");
             System.out.println();
@@ -305,20 +320,28 @@ public class AuthorMenuController {
 
         AuthorStats stats = statisticsService.getAuthorStats(author);
 
+        // 이 작가의 모든 웹툰 목록
+        List<Webtoon> webtoons = authorService.getHomeScreen(author.getId());
+
+        // 🔸 총 회차 수 직접 계산
+        int totalEpisodeCount = 0;
+        for (Webtoon w : webtoons) {
+            totalEpisodeCount += w.getEpisodeIds().size();
+            // 또는 statisticsService.getEpisodeCount(w.getId());
+        }
+
         System.out.println("작가명: " + stats.getAuthorName());
         System.out.println();
         System.out.println("총 작품 수: " + stats.getWebtoonCount() + "개");
-        System.out.println("총 회차 수: " + stats.getTotalEpisodeCount() + "화");
+        System.out.println("총 회차 수: " + totalEpisodeCount + "화");
         System.out.println("총 조회수: " + stats.getTotalViews() + "회");
         System.out.println();
 
         // 작품별 상세 통계
-        List<Webtoon> webtoons = authorService.getHomeScreen(author.getId());
-
         if (!webtoons.isEmpty()) {
             System.out.println("[작품별 통계]");
             for (Webtoon w : webtoons) {
-                int episodeCount = statisticsService.getEpisodeCount(w.getId());
+                int episodeCount = w.getEpisodeIds().size();
                 long totalViews = statisticsService.getTotalViews(w.getId());
                 System.out.println("- " + w.getTitle() + ": " + episodeCount + "화, " + totalViews + "회 조회");
             }
@@ -327,4 +350,5 @@ public class AuthorMenuController {
         InputUtil.printSeparator();
         InputUtil.pause();
     }
+
 }

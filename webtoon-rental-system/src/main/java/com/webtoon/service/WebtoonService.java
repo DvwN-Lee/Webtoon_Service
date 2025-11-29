@@ -177,10 +177,26 @@ public class WebtoonService {
         return webtoonRepository.findByAuthorId(authorId);
     }
 
-    /** 인기순 정렬 (popularity 내림차순) */
-    public List<Webtoon> sortByPopularity() {
-        return webtoonRepository.findAll().stream()
-                .sorted(Comparator.comparingInt(Webtoon::getPopularity).reversed())
+//    /** 인기순 정렬 (popularity 내림차순) */
+//    public List<Webtoon> sortByPopularity() {
+//        return webtoonRepository.findAll().stream()
+//                .sorted(Comparator.comparingInt(Webtoon::getPopularity).reversed())
+//                .collect(Collectors.toList());
+//    }
+
+    /** 조회순 정렬 (총 조회수 내림차순) */
+    public List<Webtoon> sortByViews() {
+        List<Webtoon> all = webtoonRepository.findAll();
+
+        // statisticsService가 주입되지 않은 테스트 환경 대비
+        if (statisticsService == null) {
+            return all;
+        }
+
+        return all.stream()
+                .sorted(Comparator.comparingLong(
+                        (Webtoon w) -> statisticsService.getTotalViews(w.getId())
+                ).reversed())
                 .collect(Collectors.toList());
     }
 

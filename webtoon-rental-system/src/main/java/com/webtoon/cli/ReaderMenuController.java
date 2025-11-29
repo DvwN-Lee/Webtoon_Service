@@ -22,6 +22,7 @@ public class ReaderMenuController {
     private final RentalRepository rentalRepository;
     private final PurchaseRepository purchaseRepository;
     private final ReaderRepository readerRepository;
+    private final StatisticsService statisticsService;
 
     public ReaderMenuController(ReaderService readerService,
                                 WebtoonService webtoonService,
@@ -31,7 +32,8 @@ public class ReaderMenuController {
                                 AccessService accessService,
                                 RentalRepository rentalRepository,
                                 PurchaseRepository purchaseRepository,
-                                ReaderRepository readerRepository) {
+                                ReaderRepository readerRepository,
+                                StatisticsService statisticsService) {
         this.readerService = readerService;
         this.webtoonService = webtoonService;
         this.episodeService = episodeService;
@@ -41,6 +43,7 @@ public class ReaderMenuController {
         this.rentalRepository = rentalRepository;
         this.purchaseRepository = purchaseRepository;
         this.readerRepository = readerRepository;
+        this.statisticsService = statisticsService;
     }
 
     public void showHomeScreen(Reader reader) {
@@ -124,7 +127,7 @@ public class ReaderMenuController {
             System.out.println();
             InputUtil.printHeader("웹툰 탐색");
             System.out.println("1. 전체 웹툰 목록");
-            System.out.println("2. 인기순 정렬");
+            System.out.println("2. 조회순 정렬");
             System.out.println("3. 최신순 정렬");
             System.out.println("4. 제목으로 검색");
             System.out.println("0. 뒤로가기");
@@ -137,7 +140,7 @@ public class ReaderMenuController {
                     showWebtoonList(reader, webtoonService.listAllWebtoons());
                     break;
                 case 2:
-                    showWebtoonList(reader, webtoonService.sortByPopularity());
+                    showWebtoonList(reader, webtoonService.sortByViews());
                     break;
                 case 3:
                     showWebtoonList(reader, webtoonService.sortByLatest());
@@ -177,10 +180,24 @@ public class ReaderMenuController {
             System.out.println();
             InputUtil.printHeader("웹툰 목록 (" + webtoons.size() + "개)");
 
+//            for (int i = 0; i < webtoons.size(); i++) {
+//                Webtoon w = webtoons.get(i);
+//                System.out.printf("%d. [%s] %s (조회수: %d)\n",
+//                        (i + 1), w.getStatus(), w.getTitle(), w.getPopularity());
+//            }
+
             for (int i = 0; i < webtoons.size(); i++) {
                 Webtoon w = webtoons.get(i);
-                System.out.printf("%d. [%s] %s (인기도: %d)\n",
-                        (i + 1), w.getStatus(), w.getTitle(), w.getPopularity());
+
+                long totalViews = statisticsService.getTotalViews(w.getId());
+
+                System.out.printf(
+                        "%d. [%s] %s (조회수: %d)\n",
+                        (i + 1),
+                        w.getStatus(),
+                        w.getTitle(),
+                        totalViews
+                );
             }
 
             System.out.println("\n0. 뒤로가기");
