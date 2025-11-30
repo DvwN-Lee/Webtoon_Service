@@ -25,6 +25,10 @@ public class ScenarioIntegrationTest {
     private static JsonWebtoonRepository webtoonRepository;
     private static JsonEpisodeRepository episodeRepository;
     private static NotificationRepository notificationRepository;
+    private static ReaderRepository readerRepository;
+    private static RentalRepository rentalRepository;
+    private static PurchaseRepository purchaseRepository;
+    private static PaymentHistoryRepository paymentHistoryRepository;
 
     private static AuthService authService;
     private static WebtoonService webtoonService;
@@ -40,9 +44,13 @@ public class ScenarioIntegrationTest {
         webtoonRepository = new JsonWebtoonRepository();
         episodeRepository = new JsonEpisodeRepository();
         notificationRepository = new NotificationRepository();
+        readerRepository = new ReaderRepository();
+        rentalRepository = new RentalRepository();
+        purchaseRepository = new PurchaseRepository();
+        paymentHistoryRepository = new PaymentHistoryRepository();
 
         // 서비스 초기화
-        authService = new AuthService(userRepository);
+        authService = new AuthService(userRepository, readerRepository);
         notificationService = new NotificationService(notificationRepository);
         webtoonService = new WebtoonService(webtoonRepository, episodeRepository,
                                             notificationService, userRepository);
@@ -50,7 +58,8 @@ public class ScenarioIntegrationTest {
         // 데이터 초기화
         DataInitializer dataInitializer = new DataInitializer(
             authService, userRepository, webtoonRepository,
-            episodeRepository, notificationService
+            episodeRepository, notificationService,
+            readerRepository, rentalRepository, purchaseRepository, paymentHistoryRepository
         );
         dataInitializer.initializeData();
     }
@@ -61,7 +70,8 @@ public class ScenarioIntegrationTest {
     }
 
     private static void deleteTestDataFiles() {
-        String[] files = {"users.json", "webtoons.json", "episodes.json", "notifications.json"};
+        String[] files = {"users.json", "webtoons.json", "episodes.json", "notifications.json",
+                         "readers.json", "rentals.json", "purchases.json", "payment_history.json"};
         for (String file : files) {
             File f = new File("src/main/resources/data/" + file);
             if (f.exists()) {
@@ -76,18 +86,18 @@ public class ScenarioIntegrationTest {
     void scenario1_validateSampleData() {
         System.out.println("\n=== 시나리오 1: 샘플 데이터 생성 검증 ===");
 
-        // 1. 작가 3명 검증
+        // 1. 작가 4명 검증 (Issue #22 확장)
         List<User> allUsers = userRepository.findAll();
         long authorCount = allUsers.stream()
             .filter(u -> u instanceof Author)
             .count();
-        assertEquals(3, authorCount, "작가는 3명이어야 합니다");
-        System.out.println("✓ 작가 3명 생성 확인");
+        assertEquals(4, authorCount, "작가는 4명이어야 합니다");
+        System.out.println("작가 4명 생성 확인");
 
-        // 2. 웹툰 3개 검증
+        // 2. 웹툰 5개 검증 (Issue #22 확장)
         List<Webtoon> allWebtoons = webtoonRepository.findAll();
-        assertEquals(3, allWebtoons.size(), "웹툰은 3개여야 합니다");
-        System.out.println("✓ 웹툰 3개 생성 확인");
+        assertEquals(5, allWebtoons.size(), "웹툰은 5개여야 합니다");
+        System.out.println("웹툰 5개 생성 확인");
 
         // 3. 각 웹툰의 회차 수 검증
         Webtoon levelUp = allWebtoons.stream()
@@ -147,16 +157,16 @@ public class ScenarioIntegrationTest {
 
         // 1. 전체 웹툰 목록 조회
         List<Webtoon> allWebtoons = webtoonRepository.findAll();
-        assertEquals(3, allWebtoons.size());
-        System.out.println("✓ 전체 웹툰 목록 조회: " + allWebtoons.size() + "개");
+        assertEquals(5, allWebtoons.size());
+        System.out.println("전체 웹툰 목록 조회: " + allWebtoons.size() + "개");
 
         // 2. 인기순 정렬
         List<Webtoon> popularWebtoons = allWebtoons.stream()
             .sorted(Comparator.comparing(Webtoon::getPopularity).reversed())
             .collect(Collectors.toList());
-        assertEquals("나 혼자만 레벨업", popularWebtoons.get(0).getTitle(),
-            "가장 인기있는 웹툰은 '나 혼자만 레벨업'이어야 합니다");
-        System.out.println("✓ 인기순 정렬: 1위 = " + popularWebtoons.get(0).getTitle());
+        assertEquals("외모지상주의", popularWebtoons.get(0).getTitle(),
+            "가장 인기있는 웹툰은 '외모지상주의'이어야 합니다");
+        System.out.println("인기순 정렬: 1위 = " + popularWebtoons.get(0).getTitle());
 
         // 3. 제목 검색
         List<Webtoon> searchResults = webtoonRepository.searchByTitle("레벨업");

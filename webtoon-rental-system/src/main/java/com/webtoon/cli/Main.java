@@ -74,7 +74,11 @@ public class Main {
             userRepository,
             webtoonRepository,
             episodeRepository,
-            notificationService
+            notificationService,
+            readerRepository,
+            rentalRepository,
+            purchaseRepository,
+            paymentHistoryRepository
         );
         dataInitializer.initializeData();
 
