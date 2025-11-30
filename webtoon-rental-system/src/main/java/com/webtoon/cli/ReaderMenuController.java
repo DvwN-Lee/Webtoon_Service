@@ -226,7 +226,8 @@ public class ReaderMenuController {
             System.out.println("상태: " + webtoon.getStatus());
             System.out.println("줄거리: " + webtoon.getSummary());
             System.out.println("총 회차 수: " + webtoon.getEpisodeIds().size() + "화");
-            System.out.println("인기도: " + webtoon.getPopularity());
+            long totalViews = statisticsService.getTotalViews(webtoon.getId());
+            System.out.println("조회수: " + totalViews + "회");
 
             boolean isFollowing = latestReader.getFollowingWebtoonIds().contains(webtoon.getId());
             System.out.println("팔로우 상태: " + (isFollowing ? "팔로우 중" : "미팔로우"));

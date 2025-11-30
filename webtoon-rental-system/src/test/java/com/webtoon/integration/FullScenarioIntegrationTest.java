@@ -1,6 +1,7 @@
 package com.webtoon.integration;
 
 import com.webtoon.domain.*;
+import com.webtoon.pattern.BankTransferPaymentStrategy;
 import com.webtoon.pattern.CreditCardPaymentStrategy;
 import com.webtoon.repository.*;
 import com.webtoon.service.*;
@@ -23,6 +24,7 @@ class FullScenarioIntegrationTest {
     private static NotificationService notificationService;
     private static PointService pointService;
     private static AccessService accessService;
+    private static StatisticsService statisticsService;
 
     private static UserRepository userRepository;
     private static ReaderRepository readerRepository;
@@ -32,6 +34,7 @@ class FullScenarioIntegrationTest {
     private static RentalRepository rentalRepository;
     private static PurchaseRepository purchaseRepository;
     private static PaymentHistoryRepository paymentHistoryRepository;
+    private static StatisticsRepository statisticsRepository;
 
     private static Author chugong;
     private static Reader reader1;
@@ -42,7 +45,7 @@ class FullScenarioIntegrationTest {
         // 기존 데이터 파일 삭제
         String dataDir = "src/main/resources/data/";
         String[] files = {"users.json", "readers.json", "webtoons.json", "episodes.json",
-                         "notifications.json", "rentals.json", "purchases.json", "payment_history.json"};
+                         "notifications.json", "rentals.json", "purchases.json", "payment_history.json", "statistics.json"};
 
         for (String file : files) {
             java.io.File f = new java.io.File(dataDir + file);
@@ -60,14 +63,16 @@ class FullScenarioIntegrationTest {
         rentalRepository = new RentalRepository();
         purchaseRepository = new PurchaseRepository();
         paymentHistoryRepository = new PaymentHistoryRepository();
+        statisticsRepository = new InMemoryStatisticsRepository();
 
         Clock clock = Clock.systemDefaultZone();
 
         // 서비스 초기화
         authService = new AuthService(userRepository, readerRepository);
         notificationService = new NotificationService(notificationRepository);
-        webtoonService = new WebtoonService(webtoonRepository, episodeRepository, notificationService, userRepository);
-        episodeService = new EpisodeService(episodeRepository);
+        statisticsService = new StatisticsService(statisticsRepository, webtoonRepository);
+        webtoonService = new WebtoonService(webtoonRepository, episodeRepository, notificationService, userRepository, statisticsService);
+        episodeService = new EpisodeService(episodeRepository, statisticsService);
         readerService = new ReaderService(readerRepository, notificationService, rentalRepository, purchaseRepository);
         pointService = new PointService(paymentHistoryRepository, readerRepository, clock);
         accessService = new AccessService(rentalRepository, purchaseRepository,  readerRepository, clock);
@@ -414,5 +419,227 @@ class FullScenarioIntegrationTest {
         int totalSpent = 1000 - reader2.getPoints();
         assertEquals(100, totalSpent);
         System.out.println("  - 총 사용 포인트: " + totalSpent + "P (대여 50P + 전환 50P)\n");
+    }
+
+    @Test
+    @Order(9)
+    @DisplayName("[추가 검증] 작가 통계 기능 테스트")
+    void step9_AuthorStatisticsTest() {
+        System.out.println("\n[STEP 9] 작가 통계 기능 테스트");
+        System.out.println("=====================================");
+
+        // 작가 로그인
+        authService.logout();
+        authService.login("AUTHOR", "chugong", "1234");
+        System.out.println("작가 로그인 완료");
+
+        // 작가 통계 조회
+        AuthorStats stats = statisticsService.getAuthorStats(chugong);
+        assertNotNull(stats);
+        System.out.println("작가 통계 조회 완료");
+        System.out.println("  - 작가명: " + stats.getAuthorName());
+        System.out.println("  - 총 작품 수: " + stats.getWebtoonCount() + "개");
+        System.out.println("  - 총 회차 수: " + stats.getTotalEpisodeCount() + "화");
+        System.out.println("  - 총 조회수: " + stats.getTotalViews() + "회");
+
+        // 검증: 작품 수 1개
+        assertEquals(1, stats.getWebtoonCount());
+
+        // 웹툰별 조회수 확인
+        long webtoonViews = statisticsService.getTotalViews(levelUpWebtoon.getId());
+        System.out.println("  - 웹툰 조회수: " + webtoonViews + "회");
+
+        // 조회순 정렬 테스트
+        List<Webtoon> sortedByViews = webtoonService.sortByViews();
+        assertNotNull(sortedByViews);
+        System.out.println("조회순 정렬 테스트 완료: " + sortedByViews.size() + "개 웹툰\n");
+    }
+
+    @Test
+    @Order(10)
+    @DisplayName("[추가 검증] 언팔로우 시나리오 테스트")
+    void step10_UnfollowTest() {
+        System.out.println("\n[STEP 10] 언팔로우 시나리오 테스트");
+        System.out.println("=====================================");
+
+        // 독자 로그인
+        authService.logout();
+        authService.login("READER", "reader1", "1234");
+        reader1 = readerRepository.findById(reader1.getId()).orElseThrow();
+        System.out.println("독자 로그인 완료: " + reader1.getDisplayName());
+
+        // 팔로우 상태 확인
+        assertTrue(reader1.getFollowingWebtoonIds().contains(levelUpWebtoon.getId()));
+        System.out.println("현재 팔로우 상태: 팔로우 중");
+
+        // 언팔로우 수행
+        readerService.unfollowWebtoon(reader1.getId(), levelUpWebtoon.getId());
+        webtoonService.unfollowWebtoon(levelUpWebtoon.getId(), reader1.getId());
+
+        // 최신 상태 재조회
+        reader1 = readerRepository.findById(reader1.getId()).orElseThrow();
+        Webtoon updatedWebtoon = webtoonRepository.findById(levelUpWebtoon.getId()).orElseThrow();
+
+        // 검증
+        assertFalse(reader1.getFollowingWebtoonIds().contains(levelUpWebtoon.getId()));
+        assertFalse(updatedWebtoon.getFollowerUserIds().contains(reader1.getId()));
+        System.out.println("언팔로우 완료");
+        System.out.println("  - Reader 팔로우 목록에서 제거됨");
+        System.out.println("  - Webtoon 팔로워 목록에서 제거됨");
+
+        // 다시 팔로우 (원상복구)
+        readerService.followWebtoon(reader1.getId(), levelUpWebtoon.getId());
+        webtoonService.followWebtoon(levelUpWebtoon.getId(), reader1.getId());
+        reader1 = readerRepository.findById(reader1.getId()).orElseThrow();
+        System.out.println("다시 팔로우 완료 (원상복구)\n");
+    }
+
+    @Test
+    @Order(11)
+    @DisplayName("[추가 검증] 계좌이체 결제 테스트")
+    void step11_BankTransferPaymentTest() {
+        System.out.println("\n[STEP 11] 계좌이체 결제 테스트");
+        System.out.println("=====================================");
+
+        // 새 독자 생성
+        Reader reader3 = authService.registerReader("reader3", "1234", "독자C");
+        readerRepository.save(reader3);
+        System.out.println("새 독자 생성: " + reader3.getDisplayName());
+        System.out.println("  - 초기 포인트: " + reader3.getPoints() + "P");
+
+        int initialPoints = reader3.getPoints();
+
+        // 계좌이체로 포인트 충전 (5,000원 -> 500P)
+        boolean chargeSuccess = pointService.chargePoints(
+            reader3,
+            5000,
+            new BankTransferPaymentStrategy()
+        );
+        assertTrue(chargeSuccess);
+
+        // 최신 상태 조회
+        reader3 = readerRepository.findById(reader3.getId()).orElseThrow();
+
+        // 검증
+        assertEquals(initialPoints + 500, reader3.getPoints());
+        System.out.println("계좌이체 충전 완료");
+        System.out.println("  - 충전액: 5,000원 (500P)");
+        System.out.println("  - 충전 후 포인트: " + reader3.getPoints() + "P\n");
+    }
+
+    @Test
+    @Order(12)
+    @DisplayName("[추가 검증] 회차 열람 및 조회수 증가 테스트")
+    void step12_EpisodeViewCountTest() {
+        System.out.println("\n[STEP 12] 회차 열람 및 조회수 증가 테스트");
+        System.out.println("=====================================");
+
+        // 독자 로그인
+        authService.logout();
+        authService.login("READER", "reader1", "1234");
+        reader1 = readerRepository.findById(reader1.getId()).orElseThrow();
+
+        // 16화 조회 (이미 구매함)
+        List<Episode> episodes = episodeService.findByWebtoonId(levelUpWebtoon.getId());
+        Episode episode16 = episodes.stream()
+            .filter(e -> e.getNumber() == 16)
+            .findFirst()
+            .orElseThrow();
+
+        int viewCountBefore = episode16.getViewCount();
+        long totalViewsBefore = statisticsService.getTotalViews(levelUpWebtoon.getId());
+        System.out.println("열람 전 상태:");
+        System.out.println("  - 16화 조회수: " + viewCountBefore);
+        System.out.println("  - 웹툰 총 조회수: " + totalViewsBefore);
+
+        // 회차 열람 (조회수 증가)
+        Episode viewedEpisode = episodeService.getEpisodeDetailForUser(episode16, reader1);
+
+        // 검증
+        assertEquals(viewCountBefore + 1, viewedEpisode.getViewCount());
+        long totalViewsAfter = statisticsService.getTotalViews(levelUpWebtoon.getId());
+        assertEquals(totalViewsBefore + 1, totalViewsAfter);
+
+        System.out.println("열람 후 상태:");
+        System.out.println("  - 16화 조회수: " + viewedEpisode.getViewCount() + " (+1)");
+        System.out.println("  - 웹툰 총 조회수: " + totalViewsAfter + " (+1)");
+        System.out.println("조회수 증가 검증 완료\n");
+    }
+
+    @Test
+    @Order(13)
+    @DisplayName("[추가 검증] 예외 상황 테스트 - 포인트 부족")
+    void step13_InsufficientPointsTest() {
+        System.out.println("\n[STEP 13] 예외 상황 테스트 - 포인트 부족");
+        System.out.println("=====================================");
+
+        // 포인트가 부족한 독자 생성
+        Reader poorReader = authService.registerReader("poorReader", "1234", "가난한독자");
+        readerRepository.save(poorReader);
+
+        // 포인트를 0으로 만들기 위해 전부 사용
+        poorReader.usePoints(poorReader.getPoints());
+        readerRepository.update(poorReader);
+        poorReader = readerRepository.findById(poorReader.getId()).orElseThrow();
+
+        System.out.println("테스트 독자 생성: " + poorReader.getDisplayName());
+        System.out.println("  - 현재 포인트: " + poorReader.getPoints() + "P");
+
+        // 회차 조회
+        List<Episode> episodes = episodeService.findByWebtoonId(levelUpWebtoon.getId());
+        Episode episode1 = episodes.get(0);
+        System.out.println("대여 시도: " + episode1.getTitle() + " (대여가: " + episode1.getRentPrice() + "P)");
+
+        // 포인트 부족으로 대여 실패
+        boolean rentResult = accessService.grantAccess(
+            poorReader,
+            episode1,
+            new com.webtoon.pattern.RentalAccessStrategy(rentalRepository)
+        );
+
+        assertFalse(rentResult);
+        System.out.println("대여 결과: 실패 (포인트 부족)");
+        System.out.println("예외 상황 테스트 완료\n");
+    }
+
+    @Test
+    @Order(14)
+    @DisplayName("[추가 검증] 예외 상황 테스트 - 중복 구매 방지")
+    void step14_DuplicatePurchasePreventionTest() {
+        System.out.println("\n[STEP 14] 예외 상황 테스트 - 중복 구매 방지");
+        System.out.println("=====================================");
+
+        // 독자 로그인
+        authService.logout();
+        authService.login("READER", "reader1", "1234");
+        reader1 = readerRepository.findById(reader1.getId()).orElseThrow();
+
+        int pointsBefore = reader1.getPoints();
+        System.out.println("현재 포인트: " + pointsBefore + "P");
+
+        // 16화는 이미 구매했음
+        List<Episode> episodes = episodeService.findByWebtoonId(levelUpWebtoon.getId());
+        Episode episode16 = episodes.stream()
+            .filter(e -> e.getNumber() == 16)
+            .findFirst()
+            .orElseThrow();
+
+        System.out.println("16화 재구매 시도 (이미 구매한 회차)");
+
+        // 중복 구매 시도
+        boolean purchaseResult = accessService.grantAccess(
+            reader1,
+            episode16,
+            new com.webtoon.pattern.PurchaseAccessStrategy(purchaseRepository)
+        );
+
+        // 중복 구매는 성공으로 처리되지만 포인트는 차감되지 않음
+        assertTrue(purchaseResult);
+        reader1 = readerRepository.findById(reader1.getId()).orElseThrow();
+        assertEquals(pointsBefore, reader1.getPoints());
+
+        System.out.println("재구매 결과: 성공 (이미 소유)");
+        System.out.println("  - 포인트 차감 없음: " + reader1.getPoints() + "P");
+        System.out.println("중복 구매 방지 테스트 완료\n");
     }
 }

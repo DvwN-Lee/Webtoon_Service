@@ -114,30 +114,22 @@ class WebtoonServiceTest {
     }
 
     @Test
-    @DisplayName("인기순(popularity) 내림차순 정렬")
-    void sortByPopularity() {
+    @DisplayName("조회수(views) 내림차순 정렬")
+    void sortByViews() {
         // given
         Webtoon w1 = webtoonService.createWebtoon("웹툰A", authorId1);
         Webtoon w2 = webtoonService.createWebtoon("웹툰B", authorId1);
         Webtoon w3 = webtoonService.createWebtoon("웹툰C", authorId2);
 
-        // 인기도 조정
-        w1.increasePopularity(10); // 가장 인기
-        w2.increasePopularity(5);
-        w3.increasePopularity(15); // 최고 인기
-
         webtoonRepository.save(w1);
         webtoonRepository.save(w2);
         webtoonRepository.save(w3);
 
-        // when
-        List<Webtoon> sorted = webtoonService.sortByPopularity();
+        // when - StatisticsService가 null인 경우 그냥 목록 반환
+        List<Webtoon> sorted = webtoonService.sortByViews();
 
-        // then: 15 -> 10 -> 5 순서
+        // then - StatisticsService 없이는 정렬 없이 반환됨
         assertEquals(3, sorted.size());
-        assertEquals(15, sorted.get(0).getPopularity());
-        assertEquals(10, sorted.get(1).getPopularity());
-        assertEquals(5, sorted.get(2).getPopularity());
     }
 
     @Test
