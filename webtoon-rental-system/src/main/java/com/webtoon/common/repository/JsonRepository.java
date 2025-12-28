@@ -7,6 +7,7 @@ import com.webtoon.common.util.LocalDateTimeAdapter;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
@@ -71,7 +73,7 @@ public abstract class JsonRepository<T> {
      * 엔티티 저장 (신규 또는 업데이트)
      * ID가 null이면 자동 생성, 존재하면 업데이트
      */
-    public void save(T entity) {
+    public T save(T entity) {
         lock.writeLock().lock();
         try {
             List<T> entities = loadFromFile();
@@ -89,6 +91,7 @@ public abstract class JsonRepository<T> {
             }
 
             saveToFile(entities);
+            return entity;
         } finally {
             lock.writeLock().unlock();
         }
@@ -97,13 +100,12 @@ public abstract class JsonRepository<T> {
     /**
      * ID로 엔티티 조회
      */
-    public T findById(Long id) {
+    public Optional<T> findById(Long id) {
         lock.readLock().lock();
         try {
             return loadFromFile().stream()
                     .filter(e -> getId(e).equals(id))
-                    .findFirst()
-                    .orElse(null);
+                    .findFirst();
         } finally {
             lock.readLock().unlock();
         }
@@ -131,7 +133,7 @@ public abstract class JsonRepository<T> {
     /**
      * ID로 엔티티 삭제
      */
-    public void delete(Long id) {
+    public void deleteById(Long id) {
         lock.writeLock().lock();
         try {
             List<T> entities = loadFromFile();
@@ -144,6 +146,7 @@ public abstract class JsonRepository<T> {
 
     /**
      * 파일에서 엔티티 로드
+     * UTF-8 인코딩을 명시적으로 지정하여 맥/윈도우 호환성 보장
      */
     private List<T> loadFromFile() {
         Path path = Paths.get(getFilePath());
@@ -154,7 +157,7 @@ public abstract class JsonRepository<T> {
         }
 
         try {
-            String json = Files.readString(path);
+            String json = Files.readString(path, StandardCharsets.UTF_8);
             Type listType = TypeToken.getParameterized(List.class, getEntityClass()).getType();
             List<T> entities = GSON.fromJson(json, listType);
             return entities != null ? entities : new ArrayList<>();
@@ -165,6 +168,7 @@ public abstract class JsonRepository<T> {
 
     /**
      * 파일에 엔티티 저장
+     * UTF-8 인코딩을 명시적으로 지정하여 맥/윈도우 호환성 보장
      */
     private void saveToFile(List<T> entities) {
         Path path = Paths.get(getFilePath());
@@ -174,7 +178,7 @@ public abstract class JsonRepository<T> {
             Files.createDirectories(path.getParent());
 
             String json = GSON.toJson(entities);
-            Files.writeString(path, json);
+            Files.writeString(path, json, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException("JSON 파일 쓰기 실패: " + getFilePath(), e);
         }

@@ -6,18 +6,54 @@ import com.webtoon.common.validation.Validator;
 import com.webtoon.domain.Author;
 import com.webtoon.domain.Reader;
 import com.webtoon.domain.User;
-import com.webtoon.service.AuthService;
+import com.webtoon.repository.*;
+import com.webtoon.service.*;
 
 public class MenuController {
 
     private final AuthService authService;
+    private final ReaderService readerService;
+    private final WebtoonService webtoonService;
+    private final EpisodeService episodeService;
+    private final NotificationService notificationService;
+    private final PointService pointService;
+    private final AccessService accessService;
+    private final RentalRepository rentalRepository;
+    private final PurchaseRepository purchaseRepository;
+
     private final ReaderMenuController readerMenuController;
     private final AuthorMenuController authorMenuController;
 
-    public MenuController(AuthService authService) {
+    public MenuController(AuthService authService,
+                         ReaderService readerService,
+                         WebtoonService webtoonService,
+                         EpisodeService episodeService,
+                         NotificationService notificationService,
+                         PointService pointService,
+                         AccessService accessService,
+                         RentalRepository rentalRepository,
+                         PurchaseRepository purchaseRepository,
+                         AuthorService authorService,
+                         StatisticsService statisticsService,
+                         ReaderRepository readerRepository) {
         this.authService = authService;
-        this.readerMenuController = new ReaderMenuController();
-        this.authorMenuController = new AuthorMenuController();
+        this.readerService = readerService;
+        this.webtoonService = webtoonService;
+        this.episodeService = episodeService;
+        this.notificationService = notificationService;
+        this.pointService = pointService;
+        this.accessService = accessService;
+        this.rentalRepository = rentalRepository;
+        this.purchaseRepository = purchaseRepository;
+
+        this.readerMenuController = new ReaderMenuController(
+            readerService, webtoonService, episodeService,
+            notificationService, pointService, accessService,
+            rentalRepository, purchaseRepository, readerRepository, statisticsService
+        );
+        this.authorMenuController = new AuthorMenuController(
+            authorService, webtoonService, episodeService, statisticsService
+        );
     }
 
     public void showStartMenu() {
@@ -174,13 +210,17 @@ public class MenuController {
 
         // 자기소개 입력 및 검증 (선택사항)
         String bio = null;
-        while (bio == null) {
+        boolean bioValid = false;
+        while (!bioValid) {
             try {
                 String input = InputUtil.readLine("자기소개 (선택 사항, Enter로 건너뛰기): ");
                 if (!input.isEmpty()) {
                     Validator.validateBio(input);
+                    bio = input;
+                } else {
+                    bio = null; // 빈 입력은 null로 저장
                 }
-                bio = input.isEmpty() ? null : input;
+                bioValid = true; // 검증 통과하면 루프 종료
             } catch (ValidationException e) {
                 System.out.println("[오류] " + e.getMessage());
             }

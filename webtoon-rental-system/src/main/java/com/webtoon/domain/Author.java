@@ -1,5 +1,10 @@
 package com.webtoon.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * 작가 도메인 모델
  *
@@ -13,6 +18,9 @@ public class Author extends User {
 
     private String authorName;  // 작가명
     private String bio;         // 자기소개 (선택)
+
+    // 연재 중인 웹툰 목록
+    private final List<Webtoon> webtoons = new ArrayList<>();
 
     // 기본 생성자 (Gson용)
     public Author() {
@@ -41,6 +49,33 @@ public class Author extends User {
     @Override
     public String getUserType() {
         return "AUTHOR";
+    }
+
+    // 작가의 연재 목록에 새 웹툰 등록
+    public void createWebtoon(Webtoon webtoon) {
+        if (webtoon == null) return;
+        webtoons.add(webtoon);
+    }
+
+    // 작가가 가진 전체 작품 수
+    public int getWebtoonCount() {
+        return webtoons.size();
+    }
+
+    // 작가의 모든 작품을 대상으로 총 팔로워 수를 계산
+    public int getTotalFollowers() {
+        Set<Long> allFollowerIds = new HashSet<>();
+        for (Webtoon webtoon : webtoons) {
+            if (webtoon != null) {
+                allFollowerIds.addAll(webtoon.getFollowerUserIds());
+            }
+        }
+        return allFollowerIds.size();
+    }
+
+    // 작가 연재 목록에서 특정 웹툰 제거 (웹툰 삭제 시 사용)
+    public void removeWebtoon(Long webtoonId) {
+        webtoons.removeIf(w -> w != null && webtoonId.equals(w.getId()));
     }
 
     /**
@@ -79,6 +114,10 @@ public class Author extends User {
         this.bio = bio;
     }
 
+    public List<Webtoon> getWebtoons() {
+        return webtoons;
+    }
+
     @Override
     public String toString() {
         return "Author{" +
@@ -86,6 +125,8 @@ public class Author extends User {
                 ", username='" + getUsername() + '\'' +
                 ", authorName='" + authorName + '\'' +
                 ", bio='" + bio + '\'' +
+                ", webtoonCount=" + webtoons.size() +
+                ", totalFollowers=" + getTotalFollowers() +
                 ", points=" + getPoints() +
                 ", createdAt=" + getCreatedAt() +
                 '}';

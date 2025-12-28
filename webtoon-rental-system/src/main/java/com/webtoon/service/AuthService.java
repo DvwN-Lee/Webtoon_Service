@@ -5,6 +5,7 @@ import com.webtoon.common.validation.Validator;
 import com.webtoon.domain.Author;
 import com.webtoon.domain.Reader;
 import com.webtoon.domain.User;
+import com.webtoon.repository.ReaderRepository;
 import com.webtoon.repository.UserRepository;
 
 /**
@@ -14,15 +15,24 @@ import com.webtoon.repository.UserRepository;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final ReaderRepository readerRepository;
     private User currentUser;  // 현재 로그인된 사용자 (세션)
 
     public AuthService() {
         this.userRepository = new UserRepository();
+        this.readerRepository = new ReaderRepository();
     }
 
     // 테스트용 생성자 (의존성 주입)
     public AuthService(UserRepository userRepository) {
         this.userRepository = userRepository;
+        this.readerRepository = new ReaderRepository();
+    }
+
+    // 완전한 DI 생성자
+    public AuthService(UserRepository userRepository, ReaderRepository readerRepository) {
+        this.userRepository = userRepository;
+        this.readerRepository = readerRepository;
     }
 
     /**
@@ -51,8 +61,9 @@ public class AuthService {
         // 3. Reader 생성 (초기 포인트 1000P 자동 지급)
         Reader reader = new Reader(username, password, nickname);
 
-        // 4. 저장
+        // 4. 저장 (UserRepository와 ReaderRepository 모두에 저장)
         userRepository.save(reader);
+        readerRepository.save(reader);
 
         System.out.println("✅ 독자 회원가입 성공: " + reader.getDisplayName() + " (초기 포인트: " + reader.getPoints() + "P)");
         return reader;
@@ -103,7 +114,7 @@ public class AuthService {
      * @throws ValidationException 로그인 실패 시
      */
     public User login(String userType, String username, String password) {
-        // 1. 사용자 조회
+        // 1. UserRepository에서 사용자 조회
         User user = userRepository.findByUsername(username);
 
         if (user == null) {
@@ -120,12 +131,19 @@ public class AuthService {
             throw new ValidationException("비밀번호가 일치하지 않습니다.");
         }
 
-        // 4. 세션 설정
+        // 4. Reader일 경우 최신 Reader 데이터로 교체
+        if (user instanceof Reader) {
+            user = readerRepository.findById(user.getId())
+                    .orElseThrow(() -> new ValidationException("Reader 정보가 존재하지 않습니다."));
+        }
+
+        // 5. 세션 저장
         this.currentUser = user;
 
         System.out.println("✅ 로그인 성공: " + user.getDisplayName() + "님 환영합니다!");
         return user;
     }
+
 
     /**
      * FR-ACCOUNT-04: 로그아웃

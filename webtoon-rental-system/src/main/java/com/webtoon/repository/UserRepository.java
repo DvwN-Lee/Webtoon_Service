@@ -5,9 +5,16 @@ import com.webtoon.domain.Author;
 import com.webtoon.domain.Reader;
 import com.webtoon.domain.User;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 /**
  * User Repository
  * User(Reader/Author) 영속화 담당
+ * Author와 Reader 모두 관리하며, AuthorService에서도 사용 가능
+ * AuthorRepository 인터페이스를 implements하지 않지만,
+ * AuthorService가 이 클래스를 사용할 수 있도록 설계됨
  */
 public class UserRepository extends JsonRepository<User> {
 
@@ -81,4 +88,5 @@ public class UserRepository extends JsonRepository<User> {
                 .map(u -> (Author) u)
                 .anyMatch(a -> a.getAuthorName().equals(authorName));
     }
+
 }

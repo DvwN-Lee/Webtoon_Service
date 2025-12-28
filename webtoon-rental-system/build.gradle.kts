@@ -15,6 +15,17 @@ java {
     }
 }
 
+// ========================================
+// 인코딩 설정 (맥/윈도우 호환성)
+// ========================================
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
+}
+
+tasks.withType<Javadoc> {
+    options.encoding = "UTF-8"
+}
+
 repositories {
     mavenCentral()
 }
@@ -41,6 +52,10 @@ application {
 // ========================================
 tasks.named<Test>("test") {
     useJUnitPlatform()
+
+    // 테스트 실행 시 인코딩 설정
+    systemProperty("file.encoding", "UTF-8")
+    jvmArgs("-Dfile.encoding=UTF-8")
 
     // 테스트 로깅 설정
     testLogging {
@@ -78,6 +93,17 @@ tasks.register<JavaExec>("runApp") {
     classpath = sourceSets.main.get().runtimeClasspath
     mainClass = application.mainClass
     standardInput = System.`in`
+
+    // 실행 시 인코딩 설정
+    systemProperty("file.encoding", "UTF-8")
+    jvmArgs("-Dfile.encoding=UTF-8")
+}
+
+// run 태스크에도 인코딩 설정 적용
+tasks.named<JavaExec>("run") {
+    standardInput = System.`in`
+    systemProperty("file.encoding", "UTF-8")
+    jvmArgs("-Dfile.encoding=UTF-8")
 }
 
 // 리소스 디렉토리 생성
@@ -97,3 +123,4 @@ tasks.register("createDataDir") {
 tasks.named("processResources") {
     dependsOn("createDataDir")
 }
+
